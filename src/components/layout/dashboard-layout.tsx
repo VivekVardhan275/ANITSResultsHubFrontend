@@ -112,9 +112,9 @@ export function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link href={homeHref} className="text-2xl font-bold text-primary">ANITS Results Hub</Link>
+          <Link href={homeHref} className="text-2xl font-bold text-primary group-data-[collapsible=icon]:hidden">ANITS Results Hub</Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -144,7 +144,7 @@ export function DashboardLayout({
       <SidebarInset>
         <header className="flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
-            <SidebarTrigger className="md:hidden" />
+            <SidebarTrigger />
             <h1 className="text-xl font-semibold">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
