@@ -60,7 +60,6 @@ const getValidationSchema = (role: Role) => {
 export function RegisterForm() {
   const [role, setRole] = useState<Role>("student");
   const [isLoading, setIsLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -74,10 +73,6 @@ export function RegisterForm() {
         confirmPassword: "",
     }
   });
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     form.reset({
@@ -102,9 +97,6 @@ export function RegisterForm() {
     // setIsLoading(false);
   };
   
-  if (!isClient) {
-    return null;
-  }
 
   return (
     <div className="space-y-6">
