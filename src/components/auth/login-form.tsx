@@ -51,7 +51,11 @@ export function LoginForm() {
 
   const handleRoleChange = (value: string) => {
     setRole(value as Role);
-    form.reset();
+    form.reset(
+      value === 'student' 
+        ? { rollNo: "", password: "" } 
+        : { email: "", password: "" }
+    );
   };
 
   const onSubmit = async (values: z.infer<typeof form.schema>) => {
@@ -81,9 +85,6 @@ export function LoginForm() {
     // But if there's an error, you would:
     // setIsLoading(false);
   };
-
-  const currentSchema =
-    role === "student" ? studentLoginSchema : staffLoginSchema;
 
   return (
     <div className="space-y-6">

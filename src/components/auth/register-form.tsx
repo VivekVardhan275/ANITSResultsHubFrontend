@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -34,7 +33,7 @@ const passwordSchema = z
 
 const studentRegisterSchema = z
   .object({
-    rollNo: z.string().min(3, "Roll No must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -45,7 +44,7 @@ const studentRegisterSchema = z
 
 const staffRegisterSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
+    username: z.string().min(3, "Username must be at least 3 characters"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -54,6 +53,10 @@ const staffRegisterSchema = z
     path: ["confirmPassword"],
   });
 
+const getValidationSchema = (role: Role) => {
+    return role === 'student' ? studentRegisterSchema : staffRegisterSchema;
+}
+
 export function RegisterForm() {
   const [role, setRole] = useState<Role>("student");
   const [isLoading, setIsLoading] = useState(false);
@@ -61,12 +64,15 @@ export function RegisterForm() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const currentSchema =
-    role === "student" ? studentRegisterSchema : staffRegisterSchema;
-
-  const form = useForm<z.infer<typeof currentSchema>>({
-    resolver: zodResolver(currentSchema),
+  const form = useForm({
+    resolver: zodResolver(getValidationSchema(role)),
     mode: "onChange",
+    defaultValues: {
+        email: "",
+        username: "",
+        password: "",
+        confirmPassword: "",
+    }
   });
 
   useEffect(() => {
@@ -74,10 +80,15 @@ export function RegisterForm() {
   }, []);
 
   useEffect(() => {
-    form.reset();
+    form.reset({
+        email: "",
+        username: "",
+        password: "",
+        confirmPassword: "",
+    });
   }, [role, form]);
 
-  const onSubmit = async (values: z.infer<typeof currentSchema>) => {
+  const onSubmit = async (values: z.infer<typeof studentRegisterSchema | typeof staffRegisterSchema>) => {
     setIsLoading(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -100,7 +111,12 @@ export function RegisterForm() {
       <Tabs
         defaultValue="student"
         className="w-full"
-        onValueChange={(v) => setRole(v as Role)}
+        onValueChange={(v) => {
+            const newRole = v as Role;
+            setRole(newRole);
+            form.reset();
+            form.trigger();
+        }}
       >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="student">Student</TabsTrigger>
@@ -113,12 +129,16 @@ export function RegisterForm() {
           {role === "student" ? (
             <FormField
               control={form.control}
-              name="rollNo"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll No</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your Roll No" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="name@anits.edu.in"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -127,16 +147,12 @@ export function RegisterForm() {
           ) : (
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="name@example.com"
-                      {...field}
-                    />
+                    <Input placeholder="Enter your username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
