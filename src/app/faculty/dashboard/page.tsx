@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -98,6 +98,14 @@ const availableSemesters = Array.from(new Set(facultySubjectsData.map(d => d.sem
 export default function FacultyDashboardPage() {
   const [selectedYear, setSelectedYear] = useState(availableYears[0]);
   const [selectedSemester, setSelectedSemester] = useState(availableSemesters[0]);
+  const [facultyName, setFacultyName] = useState("Faculty");
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("facultyUsername");
+    if (storedUsername) {
+      setFacultyName(storedUsername);
+    }
+  }, []);
 
   const filteredData = facultySubjectsData.filter(
     (data) => data.year === selectedYear && data.semester === selectedSemester
@@ -107,7 +115,7 @@ export default function FacultyDashboardPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, Dr. Sunita Sharma!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome, {facultyName}!</h1>
           <p className="text-muted-foreground">
             Here's an overview of your subject performance.
           </p>
