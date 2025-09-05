@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 
 const resultsData = {
-  "2023-24": {
+  "A21": {
     "2-1": {
       "CSE-A": [
         { rollNo: "321126510001", name: "Student A", sgpa: "8.9", status: "pass" },
@@ -49,7 +49,7 @@ const resultsData = {
       ]
     }
   },
-  "2022-23": {
+  "A22": {
     "1-1": {
       "IT-A": [
         { rollNo: "422126510001", name: "Student E", sgpa: "8.0", status: "pass" },
@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-end gap-4 flex-wrap">
             <div className="grid gap-2">
-                <Label htmlFor="year-select">Year</Label>
+                <Label htmlFor="year-select">Admission Year</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
                     <SelectTrigger id="year-select" className="w-[180px]">
                         <SelectValue placeholder="Select Year" />
