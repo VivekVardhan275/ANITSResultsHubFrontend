@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -29,83 +30,106 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UploadCloud } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 
-const years = ["2023-24", "2022-23", "2021-22"];
-const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"];
+const roles = ["Student", "Faculty", "Admin"];
 
-const fileUploadSchema = z.object({
-  year: z.string({ required_error: "Please select a year." }),
-  department: z.string({ required_error: "Please select a department." }),
-  resultsFile: z
-    .any()
-    .refine((files) => files?.length == 1, "File is required.")
-    .refine(
-      (files) => files?.[0]?.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Only .xlsx files are accepted."
-    ),
+const userFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Invalid email address."),
+  role: z.string({ required_error: "Please select a role." }),
 });
 
-export function FileUploadForm() {
+export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof fileUploadSchema>>({
-    resolver: zodResolver(fileUploadSchema),
+  const form = useForm<z.infer<typeof userFormSchema>>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
   });
 
-  const onSubmit = async (values: z.infer<typeof fileUploadSchema>) => {
+  const onSubmit = async (values: z.infer<typeof userFormSchema>) => {
     setIsLoading(true);
-    // Simulate API call for file upload
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Simulate API call to create user
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     toast({
-      title: "Upload Successful!",
-      description: `Results for ${values.department} ${values.year} have been uploaded.`,
+      title: "User Created!",
+      description: `${values.name} has been added as a ${values.role}.`,
     });
     
     form.reset({
-      year: undefined,
-      department: undefined,
-      resultsFile: undefined,
+      name: "",
+      email: "",
+      role: undefined,
     });
-    // In a real app, you would clear the file input differently.
-    // For this example, we rely on the form.reset() which works for controlled components.
-    const fileInput = document.getElementById('resultsFile') as HTMLInputElement | null;
-    if (fileInput) {
-        fileInput.value = '';
-    }
     
     setIsLoading(false);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Results Upload</CardTitle>
-        <CardDescription>
-          Select the academic year, department, and the results file (.xlsx).
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-               <FormField
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
+        <p className="text-muted-foreground">
+          Add new users to the system.
+        </p>
+      </div>
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>Add New User</CardTitle>
+          <CardDescription>
+            Fill in the details to create a new user account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
                 control={form.control}
-                name="year"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Academic Year</FormLabel>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter user's full name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="user@anits.edu.in" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an academic year" />
+                          <SelectValue placeholder="Select a role for the user" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {years.map(year => (
-                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                        {roles.map(role => (
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -113,59 +137,19 @@ export function FileUploadForm() {
                   </FormItem>
                 )}
               />
-               <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a department" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {departments.map(dep => (
-                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-             <FormField
-                control={form.control}
-                name="resultsFile"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Results File</FormLabel>
-                    <FormControl>
-                        <Input 
-                            id="resultsFile"
-                            type="file" 
-                            accept=".xlsx"
-                            onChange={(e) => field.onChange(e.target.files)}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
 
-            <Button type="submit" disabled={isLoading} className="w-full md:w-auto">
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <UploadCloud className="mr-2 h-4 w-4" />
-              )}
-              Upload File
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <UserPlus className="mr-2 h-4 w-4" />
+                )}
+                Add User
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
