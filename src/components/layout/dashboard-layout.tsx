@@ -17,7 +17,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,9 +49,11 @@ export function DashboardLayout({
   const pathname = usePathname();
   const [userName, setUserName] = useState("ANITS User");
   const [userEmail, setUserEmail] = useState("user@anits.edu.in");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
+    setUserRole(role);
     let name = "ANITS User";
     let email = "user@anits.edu.in";
     if (role === 'student') {
@@ -73,7 +75,6 @@ export function DashboardLayout({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10 border-2 border-primary/50">
-            <AvatarImage src="https://picsum.photos/100" data-ai-hint="profile avatar" alt="User" />
             <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
@@ -88,7 +89,9 @@ export function DashboardLayout({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+           <Link href={userRole ? `/${userRole}/profile` : '/login'}>Profile</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
