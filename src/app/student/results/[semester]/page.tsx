@@ -26,10 +26,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.5",
     status: "pass",
     results: [
-      { subjectCode: "MA111", subjectName: "Calculus", grade: "A", credits: 4 },
-      { subjectCode: "PH111", subjectName: "Physics", grade: "B+", credits: 3 },
-      { subjectCode: "CS111", subjectName: "Intro to Programming", grade: "A", credits: 4 },
-      { subjectCode: "EE111", subjectName: "Basic Electrical Engg.", grade: "B", credits: 3 },
+      { subjectCode: "MA111", subjectName: "Calculus", grade: "A" },
+      { subjectCode: "PH111", subjectName: "Physics", grade: "B+" },
+      { subjectCode: "CS111", subjectName: "Intro to Programming", grade: "A" },
+      { subjectCode: "EE111", subjectName: "Basic Electrical Engg.", grade: "B" },
     ]
   },
   "1-2": {
@@ -37,10 +37,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.65",
     status: "pass",
     results: [
-        { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A", credits: 4 },
-        { subjectCode: "CY121", subjectName: "Chemistry", grade: "A", credits: 3 },
-        { subjectCode: "CS121", subjectName: "Data Structures", grade: "B+", credits: 4 },
-        { subjectCode: "HU121", subjectName: "English Communication", grade: "A", credits: 2 },
+        { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A" },
+        { subjectCode: "CY121", subjectName: "Chemistry", grade: "A" },
+        { subjectCode: "CS121", subjectName: "Data Structures", grade: "B+" },
+        { subjectCode: "HU121", subjectName: "English Communication", grade: "A" },
     ]
   },
   "2-1": {
@@ -48,10 +48,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.1",
     status: "fail",
     results: [
-        { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+", credits: 4 },
-        { subjectCode: "EC211", subjectName: "Digital Logic", grade: "A", credits: 3 },
-        { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F", credits: 4 },
-        { subjectCode: "CS212", subjectName: "Object Oriented Programming", grade: "B+", credits: 3 },
+        { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+" },
+        { subjectCode: "EC211", subjectName: "Digital Logic", grade: "A" },
+        { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F" },
+        { subjectCode: "CS212", subjectName: "Object Oriented Programming", grade: "B+" },
     ]
   },
   "2-2": {
@@ -59,10 +59,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.35",
     status: "pass",
      results: [
-        { subjectCode: "CS221", subjectName: "Algorithms", grade: "A+", credits: 4 },
-        { subjectCode: "EE221", subjectName: "Network Theory", grade: "B+", credits: 3 },
-        { subjectCode: "CS222", subjectName: "Computer Organization", grade: "A", credits: 4 },
-        { subjectCode: "HU221", subjectName: "Economics", grade: "A-", credits: 2 },
+        { subjectCode: "CS221", subjectName: "Algorithms", grade: "A+" },
+        { subjectCode: "EE221", subjectName: "Network Theory", grade: "B+" },
+        { subjectCode: "CS222", subjectName: "Computer Organization", grade: "A" },
+        { subjectCode: "HU221", subjectName: "Economics", grade: "A-" },
     ]
   },
   "3-1": {
@@ -70,10 +70,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.43",
     status: "pass",
     results: [
-        { subjectCode: "CS311", subjectName: "Database Systems", grade: "A", credits: 4 },
-        { subjectCode: "CS312", subjectName: "Operating Systems", grade: "B+", credits: 4 },
-        { subjectCode: "CS313", subjectName: "Formal Languages", grade: "B", credits: 3 },
-        { subjectCode: "CS314", subjectName: "Software Engineering", grade: "A-", credits: 3 },
+        { subjectCode: "CS311", subjectName: "Database Systems", grade: "A" },
+        { subjectCode: "CS312", subjectName: "Operating Systems", grade: "B+" },
+        { subjectCode: "CS313", subjectName: "Formal Languages", grade: "B" },
+        { subjectCode: "CS314", subjectName: "Software Engineering", grade: "A-" },
     ]
   },
   "3-2": {
@@ -81,10 +81,10 @@ const allResultsData: Record<string, { sgpa: string; cgpa: string; status: strin
     cgpa: "8.51",
     status: "pass",
     results: [
-      { subjectCode: "CS321", subjectName: "Compiler Design", grade: "A", credits: 3 },
-      { subjectCode: "CS322", subjectName: "Computer Networks", grade: "A+", credits: 4 },
-      { subjectCode: "CS323", subjectName: "Artificial Intelligence", grade: "B+", credits: 3 },
-      { subjectCode: "CS324", subjectName: "Web Technologies", grade: "A", credits: 3 },
+      { subjectCode: "CS321", subjectName: "Compiler Design", grade: "A" },
+      { subjectCode: "CS322", subjectName: "Computer Networks", grade: "A+" },
+      { subjectCode: "CS323", subjectName: "Artificial Intelligence", grade: "B+" },
+      { subjectCode: "CS324", subjectName: "Web Technologies", grade: "A" },
     ]
   },
   "4-1": {
@@ -173,7 +173,7 @@ export default function SemesterResultPage({ params }: { params: { semester: str
                     <TableRow key={result.subjectCode}>
                       <TableCell>{result.subjectCode}</TableCell>
                       <TableCell className="font-medium">{result.subjectName}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right p-2">
                         <Badge variant={result.grade === "F" ? "destructive" : "default"} className="w-10 h-8 flex items-center justify-center text-base">{result.grade}</Badge>
                       </TableCell>
                     </TableRow>
