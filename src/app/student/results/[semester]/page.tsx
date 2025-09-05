@@ -165,7 +165,6 @@ export default function SemesterResultPage({ params }: { params: { semester: str
                   <TableRow>
                     <TableHead>Subject Code</TableHead>
                     <TableHead>Subject Name</TableHead>
-                    <TableHead>Credits</TableHead>
                     <TableHead className="text-right">Grade</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -174,7 +173,6 @@ export default function SemesterResultPage({ params }: { params: { semester: str
                     <TableRow key={result.subjectCode}>
                       <TableCell>{result.subjectCode}</TableCell>
                       <TableCell className="font-medium">{result.subjectName}</TableCell>
-                      <TableCell>{result.credits}</TableCell>
                       <TableCell className="text-right">
                         <Badge variant={result.grade === "F" ? "destructive" : "default"} className="w-10 h-8 flex items-center justify-center text-base">{result.grade}</Badge>
                       </TableCell>
@@ -192,4 +190,3 @@ export default function SemesterResultPage({ params }: { params: { semester: str
     </div>
   );
 }
-
