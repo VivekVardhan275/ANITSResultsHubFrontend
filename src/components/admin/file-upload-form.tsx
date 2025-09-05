@@ -33,12 +33,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const years = ["2023-24", "2022-23", "2021-22"];
+const years = ["A21", "A22", "A23", "A24"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"];
 
 const fileUploadSchema = z.object({
-  year: z.string({ required_error: "Please select a year." }),
+  year: z.string({ required_error: "Please select an admission year." }),
   semester: z.string({ required_error: "Please select a semester." }),
   department: z.string({ required_error: "Please select a department." }),
   resultsFile: z
@@ -109,7 +109,7 @@ export function FileUploadForm() {
       <CardHeader>
         <CardTitle>Results Upload</CardTitle>
         <CardDescription>
-          Select the academic year, semester, department, and the results file (.xlsx).
+          Select the admission year, semester, department, and the results file (.xlsx).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -121,7 +121,7 @@ export function FileUploadForm() {
                 name="year"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Academic Year</FormLabel>
+                    <FormLabel>Admission Year</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -160,7 +160,7 @@ export function FileUploadForm() {
                   </FormItem>
                 )}
               />
-               <FormField
+               <FormField_
                 control={form.control}
                 name="department"
                 render={({ field }) => (
