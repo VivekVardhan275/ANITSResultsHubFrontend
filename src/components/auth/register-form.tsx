@@ -33,6 +33,7 @@ const passwordSchema = z
 
 const studentRegisterSchema = z
   .object({
+    rollNo: z.string().min(1, "Roll No is required"),
     email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
@@ -45,6 +46,7 @@ const studentRegisterSchema = z
 const staffRegisterSchema = z
   .object({
     username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -67,6 +69,7 @@ export function RegisterForm() {
     resolver: zodResolver(getValidationSchema(role)),
     mode: "onChange",
     defaultValues: {
+        rollNo: "",
         email: "",
         username: "",
         password: "",
@@ -74,13 +77,11 @@ export function RegisterForm() {
     }
   });
 
+  const passwordsMatch = form.watch("password") === form.watch("confirmPassword");
+
   useEffect(() => {
-    form.reset({
-        email: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-    });
+    form.reset();
+    form.trigger();
   }, [role, form]);
 
   const onSubmit = async (values: z.infer<typeof studentRegisterSchema | typeof staffRegisterSchema>) => {
@@ -106,8 +107,6 @@ export function RegisterForm() {
         onValueChange={(v) => {
             const newRole = v as Role;
             setRole(newRole);
-            form.reset();
-            form.trigger();
         }}
       >
         <TabsList className="grid w-full grid-cols-3">
@@ -119,18 +118,14 @@ export function RegisterForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {role === "student" ? (
-            <FormField
+             <FormField
               control={form.control}
-              name="email"
+              name="rollNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Roll No</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="name@anits.edu.in"
-                      {...field}
-                    />
+                    <Input placeholder="Enter your Roll No" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,6 +146,24 @@ export function RegisterForm() {
               )}
             />
           )}
+
+           <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder={role === 'student' ? "name@anits.edu.in" : "name@example.com"}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           <FormField
             control={form.control}
@@ -183,7 +196,7 @@ export function RegisterForm() {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
+          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid || !passwordsMatch}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
