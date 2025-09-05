@@ -131,7 +131,7 @@ export function DashboardLayout({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="hidden md:flex">
-            <UserNav />
+            {/* UserNav used to be here */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -140,9 +140,7 @@ export function DashboardLayout({
             <SidebarTrigger className="md:hidden" />
             <h1 className="text-xl font-semibold">{title}</h1>
           </div>
-          <div className="md:hidden">
-            <UserNav />
-          </div>
+          <UserNav />
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>
