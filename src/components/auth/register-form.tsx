@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -32,7 +33,6 @@ const passwordSchema = z
 const studentRegisterSchema = z
   .object({
     email: z.string().email("Invalid email address"),
-    rollNo: z.string().min(1, "Roll number is required"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -43,7 +43,6 @@ const studentRegisterSchema = z
 
 const staffRegisterSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
     username: z.string().min(3, "Username must be at least 3 characters"),
     password: passwordSchema,
     confirmPassword: z.string(),
@@ -99,33 +98,19 @@ export function RegisterForm() {
       </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="name@anits.edu.in"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {role === "student" ? (
-            <FormField
+             <FormField
               control={form.control}
-              name="rollNo"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll Number</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 321126510001" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="name@anits.edu.in"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
