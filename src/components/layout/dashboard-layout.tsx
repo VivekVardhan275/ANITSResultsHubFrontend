@@ -92,7 +92,9 @@ export function DashboardLayout({
         <DropdownMenuItem asChild>
            <Link href={userRole ? `/${userRole}/profile` : '/login'}>Profile</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+           <Link href="/settings">Settings</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/login">Log out</Link>
