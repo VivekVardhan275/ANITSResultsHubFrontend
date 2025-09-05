@@ -24,14 +24,31 @@ import { Loader2 } from "lucide-react";
 type Role = "student" | "faculty" | "admin";
 
 const studentLoginSchema = z.object({
+  rollNo: z.string().min(1, "Roll No is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const facultyLoginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const staffLoginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+const adminLoginSchema = z.object({
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+const getLoginSchema = (role: Role) => {
+    switch (role) {
+        case "student":
+            return studentLoginSchema;
+        case "faculty":
+            return facultyLoginSchema;
+        case "admin":
+            return adminLoginSchema;
+    }
+}
+
 
 export function LoginForm() {
   const [role, setRole] = useState<Role>("student");
@@ -40,22 +57,22 @@ export function LoginForm() {
   const { toast } = useToast();
 
   const form = useForm({
-    resolver: zodResolver(
-      role === "student" ? studentLoginSchema : staffLoginSchema
-    ),
-    defaultValues:
-      role === "student"
-        ? { email: "", password: "" }
-        : { username: "", password: "" },
+    resolver: zodResolver(getLoginSchema(role)),
+    defaultValues: {
+      rollNo: "",
+      email: "",
+      password: ""
+    },
   });
 
   const handleRoleChange = (value: string) => {
-    setRole(value as Role);
-    form.reset(
-      value === 'student' 
-        ? { email: "", password: "" } 
-        : { username: "", password: "" }
-    );
+    const newRole = value as Role;
+    setRole(newRole);
+    form.reset({
+      rollNo: "",
+      email: "",
+      password: ""
+    });
   };
 
   const onSubmit = async (values: z.infer<typeof form.schema>) => {
@@ -104,14 +121,13 @@ export function LoginForm() {
           {role === "student" ? (
             <FormField
               control={form.control}
-              name="email"
+              name="rollNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Roll No</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="name@anits.edu.in"
+                      placeholder="Enter your Roll No"
                       {...field}
                     />
                   </FormControl>
@@ -122,13 +138,14 @@ export function LoginForm() {
           ) : (
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter your username"
+                      type="email"
+                      placeholder="name@anits.edu.in"
                       {...field}
                     />
                   </FormControl>

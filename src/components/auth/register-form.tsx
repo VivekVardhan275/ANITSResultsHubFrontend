@@ -33,20 +33,22 @@ const passwordSchema = z
 
 const baseRegisterSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
   });
 
 const studentRegisterSchema = baseRegisterSchema.extend({
   rollNo: z.string().min(1, "Roll No is required"),
+  email: z.string().email("Invalid email address"),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
 });
 
-const staffRegisterSchema = baseRegisterSchema.refine((data) => data.password === data.confirmPassword, {
+const staffRegisterSchema = baseRegisterSchema.extend({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
+}).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
@@ -73,8 +75,6 @@ export function RegisterForm() {
       confirmPassword: "",
     },
   });
-
-  const passwordsMatch = form.watch("password") === form.watch("confirmPassword");
 
   useEffect(() => {
     form.reset({
@@ -120,7 +120,7 @@ export function RegisterForm() {
       </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {role === "student" && (
+          {role === "student" ? (
              <FormField
               control={form.control}
               name="rollNo"
@@ -134,9 +134,8 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-          )}
-
-          <FormField
+          ) : (
+            <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
@@ -149,6 +148,7 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
+          )}
 
            <FormField
               control={form.control}
@@ -199,7 +199,7 @@ export function RegisterForm() {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid || !passwordsMatch}>
+          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
