@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 interface NavItem {
   href: string;
@@ -146,7 +147,10 @@ export function DashboardLayout({
             <SidebarTrigger className="md:hidden" />
             <h1 className="text-xl font-semibold">{title}</h1>
           </div>
-          <UserNav />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <UserNav />
+          </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>
