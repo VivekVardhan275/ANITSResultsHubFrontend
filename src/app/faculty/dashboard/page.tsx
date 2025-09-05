@@ -107,7 +107,7 @@ export default function FacultyDashboardPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, Faculty!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome, Dr. Sunita Sharma!</h1>
           <p className="text-muted-foreground">
             Here's an overview of your subject performance.
           </p>
