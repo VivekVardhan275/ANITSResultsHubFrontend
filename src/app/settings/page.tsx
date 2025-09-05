@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <div className="flex justify-center items-center h-full">
-      <div className="w-full max-w-md">
+    <div className="flex justify-center items-start pt-10">
+      <div className="w-full max-w-lg">
         <div className="space-y-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight">Settings</h1>

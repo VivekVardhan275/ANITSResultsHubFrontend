@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
 import {
@@ -48,6 +48,7 @@ export function DashboardLayout({
   title,
 }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [userName, setUserName] = useState("ANITS User");
   const [userEmail, setUserEmail] = useState("user@anits.edu.in");
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -75,7 +76,24 @@ export function DashboardLayout({
     }
     setUserName(name);
     setUserEmail(email);
+
+    if (typeof window !== 'undefined') {
+        document.cookie = `userRole=${role || ''}; path=/;`;
+    }
+
   }, [pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("studentRollNo");
+    localStorage.removeItem("studentEmail");
+    localStorage.removeItem("facultyUsername");
+    localStorage.removeItem("facultyEmail");
+    localStorage.removeItem("adminUsername");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("userRole");
+    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push('/login');
+  }
 
   const UserNav = () => (
     <DropdownMenu>
@@ -103,8 +121,8 @@ export function DashboardLayout({
            <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/login">Log out</Link>
+        <DropdownMenuItem onClick={handleLogout}>
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
