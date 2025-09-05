@@ -2,7 +2,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
-  { href: "/admin/users", label: "Manage Users", icon: "Users" },
+  { href: "/admin/upload-results", label: "Upload Results", icon: "Upload" },
 ];
 
 export default function AdminLayout({
