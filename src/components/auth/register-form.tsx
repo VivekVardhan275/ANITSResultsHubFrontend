@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -32,7 +33,7 @@ const passwordSchema = z
 
 const studentRegisterSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
+    rollNo: z.string().min(3, "Roll No must be at least 3 characters"),
     email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
@@ -45,6 +46,7 @@ const studentRegisterSchema = z
 const staffRegisterSchema = z
   .object({
     username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -103,12 +105,12 @@ export function RegisterForm() {
             <>
               <FormField
                 control={form.control}
-                name="username"
+                name="rollNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Roll No</FormLabel>
                     <FormControl>
-                      <Input placeholder="Choose a username" {...field} />
+                      <Input placeholder="Enter your Roll No" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,6 +135,7 @@ export function RegisterForm() {
               />
             </>
           ) : (
+            <>
             <FormField
               control={form.control}
               name="username"
@@ -146,6 +149,24 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
+            <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="name@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           <FormField
