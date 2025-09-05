@@ -50,6 +50,7 @@ export function DashboardLayout({
   const [userName, setUserName] = useState("ANITS User");
   const [userEmail, setUserEmail] = useState("user@anits.edu.in");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [homeHref, setHomeHref] = useState("/");
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -59,12 +60,17 @@ export function DashboardLayout({
     if (role === 'student') {
         name = localStorage.getItem("studentRollNo") || "Student";
         email = localStorage.getItem("studentEmail") || "student@anits.edu.in";
+        setHomeHref("/student/dashboard");
     } else if (role === 'faculty') {
         name = localStorage.getItem("facultyUsername") || "Faculty";
         email = localStorage.getItem("facultyEmail") || "faculty@anits.edu.in";
+        setHomeHref("/faculty/dashboard");
     } else if (role === 'admin') {
         name = localStorage.getItem("adminUsername") || "Admin";
         email = localStorage.getItem("adminEmail") || "admin@anits.edu.in";
+        setHomeHref("/admin/dashboard");
+    } else {
+        setHomeHref("/login");
     }
     setUserName(name);
     setUserEmail(email);
@@ -107,7 +113,7 @@ export function DashboardLayout({
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader className="p-4">
-          <Link href="/" className="text-2xl font-bold text-primary">ANITS Results Hub</Link>
+          <Link href={homeHref} className="text-2xl font-bold text-primary">ANITS Results Hub</Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
