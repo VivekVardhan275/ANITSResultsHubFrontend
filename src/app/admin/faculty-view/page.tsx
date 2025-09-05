@@ -94,17 +94,29 @@ const facultySubjectsData = [
       },
     ],
   },
+   {
+    year: "2023-24",
+    semester: "2-1",
+    subjectName: "Operating Systems",
+    subjectCode: "CS214",
+    facultyName: "Dr. Sunita Sharma",
+    classes: [
+      {
+        className: "2-1 IT",
+        totalStudents: 58,
+        studentsPassed: 55,
+      },
+    ],
+  },
 ];
 
-const availableYears = Array.from(new Set(facultySubjectsData.map(d => d.year)));
-const availableSemesters = Array.from(new Set(facultySubjectsData.map(d => d.semester)));
+const availableFaculty = Array.from(new Set(facultySubjectsData.map(d => d.facultyName)));
 
 export default function AdminFacultyViewPage() {
-  const [selectedYear, setSelectedYear] = useState(availableYears[0]);
-  const [selectedSemester, setSelectedSemester] = useState(availableSemesters[0]);
+  const [selectedFaculty, setSelectedFaculty] = useState(availableFaculty[0]);
 
   const filteredData = facultySubjectsData.filter(
-    (data) => data.year === selectedYear && data.semester === selectedSemester
+    (data) => data.facultyName === selectedFaculty
   );
 
   return (
@@ -113,32 +125,19 @@ export default function AdminFacultyViewPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Faculty Performance</h1>
           <p className="text-muted-foreground">
-            View subject performance across all faculty.
+            View subject performance by selecting a faculty member.
           </p>
         </div>
         <div className="flex items-center gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="year-select">Year</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger id="year-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Year" />
+                <Label htmlFor="faculty-select">Faculty Name</Label>
+                <Select value={selectedFaculty} onValueChange={setSelectedFaculty}>
+                    <SelectTrigger id="faculty-select" className="w-[240px]">
+                        <SelectValue placeholder="Select Faculty" />
                     </SelectTrigger>
                     <SelectContent>
-                        {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>{year}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="semester-select">Semester</Label>
-                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                    <SelectTrigger id="semester-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Semester" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         {availableSemesters.map(sem => (
-                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                        {availableFaculty.map(faculty => (
+                            <SelectItem key={faculty} value={faculty}>{faculty}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -147,7 +146,7 @@ export default function AdminFacultyViewPage() {
       </div>
 
       {filteredData.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
           {filteredData.map((subject) => {
             const totalStudents = subject.classes.reduce(
               (acc, curr) => acc + curr.totalStudents,
@@ -161,12 +160,12 @@ export default function AdminFacultyViewPage() {
               totalStudents > 0 ? (totalPassed / totalStudents) * 100 : 0;
 
             return (
-              <Card key={subject.subjectCode}>
+              <Card key={`${subject.subjectCode}-${subject.semester}-${subject.year}`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle>{subject.subjectName}</CardTitle>
-                      <CardDescription>{subject.subjectCode} - {subject.facultyName}</CardDescription>
+                      <CardTitle>{subject.subjectName} ({subject.year} - {subject.semester})</CardTitle>
+                      <CardDescription>{subject.subjectCode}</CardDescription>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-muted-foreground">
@@ -223,7 +222,7 @@ export default function AdminFacultyViewPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>No data available for the selected year and semester.</p>
+                <p>No data available for the selected faculty member.</p>
             </CardContent>
         </Card>
       )}
