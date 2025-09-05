@@ -31,13 +31,19 @@ export default function StudentProfilePage() {
                             <p className="text-muted-foreground">321126510001</p>
                         </div>
                     </div>
-                     <div className="space-y-2">
-                        <h3 className="font-semibold">Email</h3>
-                        <p className="text-muted-foreground">student@anits.edu.in</p>
-                     </div>
-                     <div className="space-y-2">
-                        <h3 className="font-semibold">Department</h3>
-                        <p className="text-muted-foreground">Computer Science & Engineering</p>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Email</h3>
+                            <p className="text-muted-foreground">student@anits.edu.in</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Department</h3>
+                            <p className="text-muted-foreground">Computer Science & Engineering</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Section</h3>
+                            <p className="text-muted-foreground">A</p>
+                        </div>
                      </div>
                      <Button>Edit Profile</Button>
                 </CardContent>
