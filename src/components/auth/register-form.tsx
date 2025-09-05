@@ -15,6 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,6 @@ const passwordSchema = z
 const studentRegisterSchema = z
   .object({
     rollNo: z.string().min(3, "Roll No must be at least 3 characters"),
-    email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -45,7 +45,6 @@ const studentRegisterSchema = z
 
 const staffRegisterSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
     email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
@@ -67,6 +66,7 @@ export function RegisterForm() {
 
   const form = useForm<z.infer<typeof currentSchema>>({
     resolver: zodResolver(currentSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -111,71 +111,37 @@ export function RegisterForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {role === "student" ? (
-            <>
-              <FormField
-                control={form.control}
-                name="rollNo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Roll No</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your Roll No" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="name@anits.edu.in"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : (
-            <>
             <FormField
               control={form.control}
-              name="username"
+              name="rollNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Roll No</FormLabel>
                   <FormControl>
-                    <Input placeholder="Choose a username" {...field} />
+                    <Input placeholder="Enter your Roll No" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          ) : (
             <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="name@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="name@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
           <FormField
@@ -187,6 +153,9 @@ export function RegisterForm() {
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} />
                 </FormControl>
+                <FormDescription>
+                  Use 8 or more characters with a mix of letters, numbers & symbols.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -206,7 +175,7 @@ export function RegisterForm() {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
