@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,10 +29,16 @@ const studentLoginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const staffLoginSchema = z.object({
+const facultyLoginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const adminLoginSchema = z.object({
+    username: z.string().min(1, "Username is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const getLoginSchema = (role: Role) => {
@@ -40,8 +46,9 @@ const getLoginSchema = (role: Role) => {
         case "student":
             return studentLoginSchema;
         case "faculty":
+            return facultyLoginSchema;
         case "admin":
-            return staffLoginSchema;
+            return adminLoginSchema;
     }
 }
 
@@ -51,6 +58,11 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(getLoginSchema(role)),
@@ -101,6 +113,10 @@ export function LoginForm() {
     // setIsLoading(false);
   };
 
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <div className="space-y-6">
       <Tabs
@@ -116,7 +132,7 @@ export function LoginForm() {
       </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {role === "student" ? (
+          {role === "student" && (
             <>
               <FormField
                 control={form.control}
@@ -152,9 +168,49 @@ export function LoginForm() {
                 )}
               />
             </>
-          ) : (
+          )}
+
+          {role === "faculty" && (
             <>
-              <FormField
+               <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="name@anits.edu.in"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          {role === "admin" && (
+             <>
+               <FormField
                 control={form.control}
                 name="username"
                 render={({ field }) => (
