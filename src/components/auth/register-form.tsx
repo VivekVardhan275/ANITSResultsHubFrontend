@@ -31,29 +31,26 @@ const passwordSchema = z
   .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
   .regex(/[0-9]/, "Password must contain at least one number");
 
-const studentRegisterSchema = z
-  .object({
-    rollNo: z.string().min(1, "Roll No is required"),
-    email: z.string().email("Invalid email address"),
-    password: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-const staffRegisterSchema = z
+const baseRegisterSchema = z
   .object({
     username: z.string().min(3, "Username must be at least 3 characters"),
     email: z.string().email("Invalid email address"),
     password: passwordSchema,
     confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
+  });
+
+const studentRegisterSchema = baseRegisterSchema.extend({
+  rollNo: z.string().min(1, "Roll No is required"),
+}).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+});
+
+const staffRegisterSchema = baseRegisterSchema.refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
 
 const getValidationSchema = (role: Role) => {
     return role === 'student' ? studentRegisterSchema : staffRegisterSchema;
@@ -69,18 +66,24 @@ export function RegisterForm() {
     resolver: zodResolver(getValidationSchema(role)),
     mode: "onChange",
     defaultValues: {
-        rollNo: "",
-        email: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-    }
+      rollNo: "",
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const passwordsMatch = form.watch("password") === form.watch("confirmPassword");
 
   useEffect(() => {
-    form.reset();
+    form.reset({
+      rollNo: "",
+      email: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+    });
     form.trigger();
   }, [role, form]);
 
@@ -117,7 +120,7 @@ export function RegisterForm() {
       </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {role === "student" ? (
+          {role === "student" && (
              <FormField
               control={form.control}
               name="rollNo"
@@ -131,8 +134,9 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-          ) : (
-            <FormField
+          )}
+
+          <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
@@ -145,7 +149,6 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-          )}
 
            <FormField
               control={form.control}

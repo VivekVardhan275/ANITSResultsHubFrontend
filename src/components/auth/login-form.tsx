@@ -24,12 +24,12 @@ import { Loader2 } from "lucide-react";
 type Role = "student" | "faculty" | "admin";
 
 const studentLoginSchema = z.object({
-  rollNo: z.string().min(1, "Roll No is required"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const staffLoginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -45,16 +45,16 @@ export function LoginForm() {
     ),
     defaultValues:
       role === "student"
-        ? { rollNo: "", password: "" }
-        : { email: "", password: "" },
+        ? { email: "", password: "" }
+        : { username: "", password: "" },
   });
 
   const handleRoleChange = (value: string) => {
     setRole(value as Role);
     form.reset(
       value === 'student' 
-        ? { rollNo: "", password: "" } 
-        : { email: "", password: "" }
+        ? { email: "", password: "" } 
+        : { username: "", password: "" }
     );
   };
 
@@ -104,12 +104,16 @@ export function LoginForm() {
           {role === "student" ? (
             <FormField
               control={form.control}
-              name="rollNo"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll No</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your Roll No" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="name@anits.edu.in"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,14 +122,13 @@ export function LoginForm() {
           ) : (
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="name@example.com"
+                      placeholder="Enter your username"
                       {...field}
                     />
                   </FormControl>
