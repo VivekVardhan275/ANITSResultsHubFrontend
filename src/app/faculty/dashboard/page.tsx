@@ -1,4 +1,5 @@
 
+
 import {
   Card,
   CardContent,
@@ -15,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 
 const facultySubjectsData = [
   {
