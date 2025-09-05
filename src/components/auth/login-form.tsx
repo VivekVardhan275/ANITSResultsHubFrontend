@@ -25,15 +25,12 @@ type Role = "student" | "faculty" | "admin";
 
 const studentLoginSchema = z.object({
   rollNo: z.string().min(1, "Roll No is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const facultyLoginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const adminLoginSchema = z.object({
+const staffLoginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -43,9 +40,8 @@ const getLoginSchema = (role: Role) => {
         case "student":
             return studentLoginSchema;
         case "faculty":
-            return facultyLoginSchema;
         case "admin":
-            return adminLoginSchema;
+            return staffLoginSchema;
     }
 }
 
@@ -60,6 +56,7 @@ export function LoginForm() {
     resolver: zodResolver(getLoginSchema(role)),
     defaultValues: {
       rollNo: "",
+      username: "",
       email: "",
       password: ""
     },
@@ -70,6 +67,7 @@ export function LoginForm() {
     setRole(newRole);
     form.reset({
       rollNo: "",
+      username: "",
       email: "",
       password: ""
     });
@@ -119,40 +117,77 @@ export function LoginForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {role === "student" ? (
-            <FormField
-              control={form.control}
-              name="rollNo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Roll No</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your Roll No"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <>
+              <FormField
+                control={form.control}
+                name="rollNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Roll No</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your Roll No"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="name@anits.edu.in"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           ) : (
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="name@anits.edu.in"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <>
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="name@anits.edu.in"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           <FormField
