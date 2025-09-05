@@ -24,7 +24,7 @@ export default function SettingsPage() {
         </p>
       </div>
       <Card>
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle>Appearance</CardTitle>
           <CardDescription>
             Customize the look and feel of the application.
