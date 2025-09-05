@@ -34,10 +34,12 @@ import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const years = ["2023-24", "2022-23", "2021-22"];
+const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"];
 
 const fileUploadSchema = z.object({
   year: z.string({ required_error: "Please select a year." }),
+  semester: z.string({ required_error: "Please select a semester." }),
   department: z.string({ required_error: "Please select a department." }),
   resultsFile: z
     .any()
@@ -59,6 +61,7 @@ export function FileUploadForm() {
     resolver: zodResolver(fileUploadSchema),
     defaultValues: {
       year: undefined,
+      semester: undefined,
       department: undefined,
       resultsFile: undefined
     }
@@ -73,11 +76,12 @@ export function FileUploadForm() {
 
     toast({
       title: "Upload Successful!",
-      description: `Results for ${values.department} ${values.year} have been uploaded.`,
+      description: `Results for ${values.department} ${values.year} (${values.semester}) have been uploaded.`,
     });
     
     form.reset({
       year: undefined,
+      semester: undefined,
       department: undefined,
       resultsFile: undefined,
     });
@@ -105,13 +109,13 @@ export function FileUploadForm() {
       <CardHeader>
         <CardTitle>Results Upload</CardTitle>
         <CardDescription>
-          Select the academic year, department, and the results file (.xlsx).
+          Select the academic year, semester, department, and the results file (.xlsx).
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
                <FormField
                 control={form.control}
                 name="year"
@@ -121,12 +125,34 @@ export function FileUploadForm() {
                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an academic year" />
+                          <SelectValue placeholder="Select a year" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {years.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="semester"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Semester</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a semester" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {semesters.map(sem => (
+                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
