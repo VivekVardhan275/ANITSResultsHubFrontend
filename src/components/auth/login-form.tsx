@@ -85,7 +85,7 @@ export function LoginForm() {
     });
   };
 
-  const onSubmit = async (values: z.infer<typeof form.schema>) => {
+  const onSubmit = async (values: any) => {
     setIsLoading(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -96,14 +96,33 @@ export function LoginForm() {
       description: `Welcome! Redirecting to your dashboard...`,
     });
 
+    // Clear previous user data
+    localStorage.removeItem("studentRollNo");
+    localStorage.removeItem("studentEmail");
+    localStorage.removeItem("facultyUsername");
+    localStorage.removeItem("facultyEmail");
+    localStorage.removeItem("adminUsername");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("userRole");
+
+
     switch (role) {
       case "student":
+        localStorage.setItem("studentRollNo", values.rollNo);
+        localStorage.setItem("studentEmail", values.email);
+        localStorage.setItem("userRole", "student");
         router.push("/student/dashboard");
         break;
       case "faculty":
+        localStorage.setItem("facultyUsername", values.username);
+        localStorage.setItem("facultyEmail", values.email);
+        localStorage.setItem("userRole", "faculty");
         router.push("/faculty/dashboard");
         break;
       case "admin":
+        localStorage.setItem("adminUsername", values.username);
+        localStorage.setItem("adminEmail", values.email);
+        localStorage.setItem("userRole", "admin");
         router.push("/admin/dashboard");
         break;
     }

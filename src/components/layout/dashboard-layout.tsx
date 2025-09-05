@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 interface NavItem {
   href: string;
@@ -46,6 +47,26 @@ export function DashboardLayout({
   title,
 }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const [userName, setUserName] = useState("ANITS User");
+  const [userEmail, setUserEmail] = useState("user@anits.edu.in");
+
+  useEffect(() => {
+    const role = localStorage.getItem("userRole");
+    let name = "ANITS User";
+    let email = "user@anits.edu.in";
+    if (role === 'student') {
+        name = localStorage.getItem("studentRollNo") || "Student";
+        email = localStorage.getItem("studentEmail") || "student@anits.edu.in";
+    } else if (role === 'faculty') {
+        name = localStorage.getItem("facultyUsername") || "Faculty";
+        email = localStorage.getItem("facultyEmail") || "faculty@anits.edu.in";
+    } else if (role === 'admin') {
+        name = localStorage.getItem("adminUsername") || "Admin";
+        email = localStorage.getItem("adminEmail") || "admin@anits.edu.in";
+    }
+    setUserName(name);
+    setUserEmail(email);
+  }, [pathname]);
 
   const UserNav = () => (
     <DropdownMenu>
@@ -53,16 +74,16 @@ export function DashboardLayout({
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10 border-2 border-primary/50">
             <AvatarImage src="https://picsum.photos/100" data-ai-hint="profile avatar" alt="User" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">ANITS User</p>
+            <p className="text-sm font-medium leading-none">{userName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@anits.edu.in
+              {userEmail}
             </p>
           </div>
         </DropdownMenuLabel>

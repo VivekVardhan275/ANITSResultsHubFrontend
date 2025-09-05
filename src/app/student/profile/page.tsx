@@ -1,4 +1,6 @@
 
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,8 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
 export default function StudentProfilePage() {
+    const [rollNo, setRollNo] = useState("");
+    const [email, setEmail] = useState("");
+
+    useEffect(() => {
+        const storedRollNo = localStorage.getItem("studentRollNo");
+        const storedEmail = localStorage.getItem("studentEmail");
+        if (storedRollNo) setRollNo(storedRollNo);
+        if (storedEmail) setEmail(storedEmail);
+    }, []);
+
     return (
         <div className="space-y-8">
             <div>
@@ -21,13 +34,13 @@ export default function StudentProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
-                        <h2 className="text-2xl font-semibold">Student Name</h2>
-                        <p className="text-muted-foreground">321126510001</p>
+                        <h2 className="text-2xl font-semibold">{rollNo || "Student Name"}</h2>
+                        <p className="text-muted-foreground">{rollNo || "321126510001"}</p>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <h3 className="font-semibold">Email</h3>
-                            <p className="text-muted-foreground">student@anits.edu.in</p>
+                            <p className="text-muted-foreground">{email || "student@anits.edu.in"}</p>
                         </div>
                         <div className="space-y-2">
                             <h3 className="font-semibold">Department</h3>
