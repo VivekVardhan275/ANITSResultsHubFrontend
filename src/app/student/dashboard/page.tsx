@@ -1,4 +1,6 @@
 
+"use client";
+
 import {
   Card,
   CardContent,
@@ -9,6 +11,7 @@ import {
 import Link from "next/link";
 import { ArrowRight, CircleAlert, CircleCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const semesterData = [
   { semester: "1-1", sgpa: "8.5", status: "pass" },
@@ -22,10 +25,19 @@ const semesterData = [
 ];
 
 export default function StudentDashboardPage() {
+  const [rollNo, setRollNo] = useState("");
+
+  useEffect(() => {
+    const storedRollNo = localStorage.getItem("studentRollNo");
+    if (storedRollNo) {
+      setRollNo(storedRollNo);
+    }
+  }, []);
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome, Student!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome, {rollNo || "Student"}!</h1>
         <p className="text-muted-foreground">
           Here are your results for all semesters. Click on a card to view details.
         </p>
