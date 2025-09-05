@@ -23,7 +23,7 @@ import { Loader2 } from "lucide-react";
 type Role = "student" | "faculty" | "admin";
 
 const studentLoginSchema = z.object({
-  rollNo: z.string().min(1, "Roll number is required"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -44,7 +44,7 @@ export function LoginForm() {
     ),
     defaultValues:
       role === "student"
-        ? { rollNo: "", password: "" }
+        ? { username: "", password: "" }
         : { email: "", password: "" },
   });
 
@@ -102,12 +102,12 @@ export function LoginForm() {
           {role === "student" ? (
             <FormField
               control={form.control}
-              name="rollNo"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll Number</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 321..." {...field} />
+                    <Input placeholder="Enter your username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
