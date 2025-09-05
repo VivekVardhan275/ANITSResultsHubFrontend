@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -38,6 +38,9 @@ const resultsData = {
       "CSE-B": [
         { rollNo: "321126510061", name: "Student X", sgpa: "9.2", status: "pass" },
         { rollNo: "321126510062", name: "Student Y", sgpa: "8.1", status: "pass" },
+      ],
+      "IT-A": [
+        { rollNo: "321126520001", name: "Student P", sgpa: "8.5", status: "pass" },
       ]
     },
     "3-2": {
@@ -57,15 +60,38 @@ const resultsData = {
 
 const years = Object.keys(resultsData);
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const sections = ["CSE-A", "CSE-B", "IT-A", "IT-B", "ECE-A", "ECE-B"];
+const departments = ["CSE", "IT", "ECE"];
 
 export default function AdminDashboardPage() {
   const [selectedYear, setSelectedYear] = useState(years[0]);
   const [selectedSemester, setSelectedSemester] = useState(semesters[2]);
-  const [selectedSection, setSelectedSection] = useState(sections[0]);
+  const [selectedDepartment, setSelectedDepartment] = useState(departments[0]);
+  const [selectedSection, setSelectedSection] = useState("All");
 
-  const displayedResults = 
-    resultsData[selectedYear]?.[selectedSemester]?.[selectedSection] || [];
+  const sectionsForDepartment = useMemo(() => {
+    const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
+    const allSections = Object.keys(semesterResults);
+    const filteredSections = allSections.filter(sec => sec.startsWith(selectedDepartment));
+    return ["All", ...filteredSections.map(sec => sec.split('-')[1])];
+  }, [selectedYear, selectedSemester, selectedDepartment]);
+
+  const displayedResults = useMemo(() => {
+    const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
+    
+    if (selectedSection === "All") {
+        return Object.keys(semesterResults)
+            .filter(key => key.startsWith(selectedDepartment))
+            .flatMap(key => semesterResults[key]);
+    }
+
+    const sectionKey = `${selectedDepartment}-${selectedSection}`;
+    return semesterResults[sectionKey] || [];
+  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection]);
+  
+  const handleDepartmentChange = (dept: string) => {
+    setSelectedDepartment(dept);
+    setSelectedSection("All");
+  }
 
   return (
     <div className="space-y-8">
@@ -104,13 +130,26 @@ export default function AdminDashboardPage() {
                 </Select>
             </div>
             <div className="grid gap-2">
+                <Label htmlFor="department-select">Department</Label>
+                <Select value={selectedDepartment} onValueChange={handleDepartmentChange}>
+                    <SelectTrigger id="department-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {departments.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+             <div className="grid gap-2">
                 <Label htmlFor="section-select">Section</Label>
                 <Select value={selectedSection} onValueChange={setSelectedSection}>
                     <SelectTrigger id="section-select" className="w-[180px]">
                         <SelectValue placeholder="Select Section" />
                     </SelectTrigger>
                     <SelectContent>
-                         {sections.map(sec => (
+                         {sectionsForDepartment.map(sec => (
                             <SelectItem key={sec} value={sec}>{sec}</SelectItem>
                         ))}
                     </SelectContent>
@@ -121,7 +160,7 @@ export default function AdminDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedSection}</CardTitle>
+          <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedDepartment} - {selectedSection}</CardTitle>
           <CardDescription>
             A list of all students and their SGPA for the selected term.
           </CardDescription>
