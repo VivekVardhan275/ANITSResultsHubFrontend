@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -80,7 +81,7 @@ export function DashboardLayout({
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader className="p-4">
-          <Link href="/" className="text-2xl font-bold text-primary">ANITS Hub</Link>
+          <Link href="/" className="text-2xl font-bold text-primary">ANITS Results Hub</Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
