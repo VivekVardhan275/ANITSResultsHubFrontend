@@ -1,3 +1,7 @@
+
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,77 +17,146 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
-const users = [
-  { id: "1", name: "John Doe", email: "john@example.com", role: "Student" },
-  { id: "2", name: "Jane Smith", email: "jane@example.com", role: "Faculty" },
-  { id: "3", name: "Admin User", email: "admin@example.com", role: "Admin" },
-  { id: "4", name: "Peter Jones", email: "peter@example.com", role: "Student" },
-  { id: "5", name: "Mary Jane", email: "mary@example.com", role: "Faculty" },
-];
+const resultsData = {
+  "2023-24": {
+    "2-1": {
+      "CSE-A": [
+        { rollNo: "321126510001", name: "Student A", sgpa: "8.9", status: "pass" },
+        { rollNo: "321126510002", name: "Student B", sgpa: "7.5", status: "pass" },
+        { rollNo: "321126510003", name: "Student C", sgpa: "6.8", status: "fail" },
+      ],
+      "CSE-B": [
+        { rollNo: "321126510061", name: "Student X", sgpa: "9.2", status: "pass" },
+        { rollNo: "321126510062", name: "Student Y", sgpa: "8.1", status: "pass" },
+      ]
+    },
+    "3-2": {
+      "CSE-A": [
+        { rollNo: "320126510001", name: "Student D", sgpa: "9.1", status: "pass" },
+      ]
+    }
+  },
+  "2022-23": {
+    "1-1": {
+      "IT-A": [
+        { rollNo: "422126510001", name: "Student E", sgpa: "8.0", status: "pass" },
+      ]
+    }
+  }
+};
+
+const years = Object.keys(resultsData);
+const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const sections = ["CSE-A", "CSE-B", "IT-A", "IT-B", "ECE-A", "ECE-B"];
 
 export default function AdminDashboardPage() {
+  const [selectedYear, setSelectedYear] = useState(years[0]);
+  const [selectedSemester, setSelectedSemester] = useState(semesters[2]);
+  const [selectedSection, setSelectedSection] = useState(sections[0]);
+
+  const displayedResults = 
+    resultsData[selectedYear]?.[selectedSemester]?.[selectedSection] || [];
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome, Admin!</h1>
-        <p className="text-muted-foreground">
-          Here&apos;s an overview of the system users.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Student Results</h1>
+          <p className="text-muted-foreground">
+            View student academic performance by filtering options.
+          </p>
+        </div>
+        <div className="flex items-end gap-4 flex-wrap">
+            <div className="grid gap-2">
+                <Label htmlFor="year-select">Year</Label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger id="year-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {years.map(year => (
+                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="semester-select">Semester</Label>
+                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                    <SelectTrigger id="semester-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {semesters.map(sem => (
+                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="section-select">Section</Label>
+                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                    <SelectTrigger id="section-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {sections.map(sec => (
+                            <SelectItem key={sec} value={sec}>{sec}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedSection}</CardTitle>
           <CardDescription>
-            A list of all users in the system.
+            A list of all students and their SGPA for the selected term.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
+                <TableHead>Roll No</TableHead>
+                <TableHead>Student Name</TableHead>
+                <TableHead>SGPA</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Badge variant={user.role === "Admin" ? "destructive" : "secondary"}>{user.role}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              {displayedResults.length > 0 ? (
+                displayedResults.map((student) => (
+                  <TableRow key={student.rollNo}>
+                    <TableCell className="font-medium">{student.rollNo}</TableCell>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.sgpa}</TableCell>
+                    <TableCell>
+                      <Badge variant={student.status === "fail" ? "destructive" : "secondary"}>
+                        {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                        No results found for the selected criteria.
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
