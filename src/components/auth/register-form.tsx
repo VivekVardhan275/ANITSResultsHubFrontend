@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -58,6 +58,7 @@ const staffRegisterSchema = z
 export function RegisterForm() {
   const [role, setRole] = useState<Role>("student");
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -67,6 +68,10 @@ export function RegisterForm() {
   const form = useForm<z.infer<typeof currentSchema>>({
     resolver: zodResolver(currentSchema),
   });
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     form.reset();
@@ -85,6 +90,10 @@ export function RegisterForm() {
     router.push("/login");
     // setIsLoading(false);
   };
+  
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">
