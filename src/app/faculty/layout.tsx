@@ -3,7 +3,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 const navItems = [
   { href: "/faculty/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
-  { href: "/faculty/profile", label: "Profile", icon: "UserCircle" },
+  { href: "/faculty/announcements", label: "Announcements", icon: "Megaphone" },
 ];
 
 export default function FacultyLayout({
