@@ -2,7 +2,7 @@
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 const navItems = [
-  { href: "/faculty/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
+  { href: "/faculty/dashboard", label: "Home", icon: "Home" },
   { href: "/faculty/announcements", label: "Announcements", icon: "Megaphone" },
 ];
 
