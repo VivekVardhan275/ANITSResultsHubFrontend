@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function SettingsPage() {
   return (
     <div className="space-y-8">
-       <div>
+       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">
           Manage your application-wide preferences.
