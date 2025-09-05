@@ -1,9 +1,8 @@
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { BarChart3, UserCircle } from "lucide-react";
 
 const navItems = [
-  { href: "/student/dashboard", label: "My Results", icon: BarChart3 },
-  { href: "/student/profile", label: "Profile", icon: UserCircle },
+  { href: "/student/dashboard", label: "My Results", icon: "BarChart3" },
+  { href: "/student/profile", label: "Profile", icon: "UserCircle" },
 ];
 
 export default function StudentLayout({

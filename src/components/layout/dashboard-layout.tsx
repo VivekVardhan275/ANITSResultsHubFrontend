@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
+import * as Icons from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -29,7 +30,7 @@ import { Button } from "@/components/ui/button";
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: keyof typeof Icons;
 }
 
 interface DashboardLayoutProps {
@@ -83,20 +84,23 @@ export function DashboardLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname.startsWith(item.href)}
-                  tooltip={{ children: item.label, side: "right", align: "center" }}
-                >
-                  <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {navItems.map((item) => {
+               const Icon = Icons[item.icon] as LucideIcon;
+               return (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={{ children: item.label, side: "right", align: "center" }}
+                  >
+                    <Link href={item.href}>
+                      <Icon />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="hidden md:flex">
