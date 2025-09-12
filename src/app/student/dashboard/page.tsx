@@ -35,7 +35,7 @@ export default function StudentDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-slide-in-from-bottom">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Welcome, {rollNo || "Student"}!</h1>
         <p className="text-muted-foreground">
@@ -43,11 +43,12 @@ export default function StudentDashboardPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {semesterData.map((sem) => (
+        {semesterData.map((sem, index) => (
           <Link href={`/student/results/${sem.semester}`} key={sem.semester}>
             <Card
+              style={{ animationDelay: `${index * 100}ms` }}
               className={cn(
-                "hover:shadow-lg transition-all duration-200 h-full flex flex-col group",
+                "hover:shadow-lg transition-all duration-200 h-full flex flex-col group animate-slide-in-from-bottom opacity-0",
                 sem.status === "pass" &&
                   "bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/50 dark:to-emerald-950/50 hover:border-green-500",
                 sem.status === "fail" &&

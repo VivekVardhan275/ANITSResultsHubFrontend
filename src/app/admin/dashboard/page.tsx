@@ -75,20 +75,8 @@ export default function AdminDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const sectionsForDepartment = useMemo(() => {
-    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
-      return ["--"];
-    }
-    const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
-    const allSectionsWithDept = Object.keys(semesterResults);
-    const departmentSections = allSectionsWithDept
-        .filter(sec => sec.startsWith(selectedDepartment))
-        .map(sec => sec.split('-')[1]);
-    
-    // Combine with static list and remove duplicates
-    const availableSections = Array.from(new Set([...sections, ...departmentSections]));
-
-    return ["--", "All", ...availableSections.sort()];
-  }, [selectedYear, selectedSemester, selectedDepartment]);
+    return ["--", "All", ...sections];
+  }, []);
 
   const displayedResults = useMemo(() => {
     if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
@@ -142,7 +130,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-slide-in-from-bottom">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Student Results</h1>
@@ -150,7 +138,7 @@ export default function AdminDashboardPage() {
             View student academic performance by filtering options.
           </p>
         </div>
-        <div className="flex items-end justify-center gap-6 flex-wrap">
+        <div className="flex items-end justify-center gap-2 flex-wrap">
             <div className="grid gap-2">
                 <Label htmlFor="year-select">Admission Year</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
