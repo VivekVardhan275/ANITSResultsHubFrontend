@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const resultsData = {
   "A21": {
@@ -67,6 +69,7 @@ export default function AdminDashboardPage() {
   const [selectedSemester, setSelectedSemester] = useState(semesters[2]);
   const [selectedDepartment, setSelectedDepartment] = useState(departments[0]);
   const [selectedSection, setSelectedSection] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const sectionsForDepartment = useMemo(() => {
     const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
@@ -78,15 +81,25 @@ export default function AdminDashboardPage() {
   const displayedResults = useMemo(() => {
     const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
     
+    let resultsToDisplay;
+
     if (selectedSection === "All") {
-        return Object.keys(semesterResults)
+        resultsToDisplay = Object.keys(semesterResults)
             .filter(key => key.startsWith(selectedDepartment))
             .flatMap(key => semesterResults[key]);
+    } else {
+        const sectionKey = `${selectedDepartment}-${selectedSection}`;
+        resultsToDisplay = semesterResults[sectionKey] || [];
     }
 
-    const sectionKey = `${selectedDepartment}-${selectedSection}`;
-    return semesterResults[sectionKey] || [];
-  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection]);
+    if (searchTerm) {
+        return resultsToDisplay.filter(student =>
+            student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+    
+    return resultsToDisplay;
+  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection, searchTerm]);
   
   const handleDepartmentChange = (dept: string) => {
     setSelectedDepartment(dept);
@@ -160,10 +173,23 @@ export default function AdminDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedDepartment} - {selectedSection}</CardTitle>
-          <CardDescription>
-            A list of all students and their SGPA for the selected term.
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedDepartment} - {selectedSection}</CardTitle>
+              <CardDescription className="mt-1">
+                A list of all students and their SGPA for the selected term.
+              </CardDescription>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search by Roll No..."
+                className="pl-9 w-full sm:w-[250px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
