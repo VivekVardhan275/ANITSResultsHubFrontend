@@ -5,6 +5,7 @@ const navItems = [
   { href: "/admin/dashboard", label: "Home", icon: "Home" },
   { href: "/admin/upload-results", label: "Upload Results", icon: "Upload" },
   { href: "/admin/upload-student-details", label: "Upload Student Details", icon: "UserPlus" },
+  { href: "/admin/upload-faculty-details", label: "Upload Faculty Details", icon: "UserCog" },
   { href: "/admin/faculty-view", label: "Faculty View", icon: "Users" },
 ];
 
