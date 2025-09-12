@@ -96,8 +96,8 @@ const availableYears = Array.from(new Set(facultySubjectsData.map(d => d.year)))
 const availableSemesters = Array.from(new Set(facultySubjectsData.map(d => d.semester)));
 
 export default function FacultyDashboardPage() {
-  const [selectedYear, setSelectedYear] = useState(availableYears[0]);
-  const [selectedSemester, setSelectedSemester] = useState(availableSemesters[0]);
+  const [selectedYear, setSelectedYear] = useState("--");
+  const [selectedSemester, setSelectedSemester] = useState("--");
   const [facultyName, setFacultyName] = useState("Faculty");
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function FacultyDashboardPage() {
   }, []);
 
   const filteredData = facultySubjectsData.filter(
-    (data) => data.year === selectedYear && data.semester === selectedSemester
+    (data) => (selectedYear === '--' || data.year === selectedYear) && (selectedSemester === '--' || data.semester === selectedSemester)
   );
 
   return (
@@ -128,6 +128,7 @@ export default function FacultyDashboardPage() {
                         <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {availableYears.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -141,6 +142,7 @@ export default function FacultyDashboardPage() {
                         <SelectValue placeholder="Select Semester" />
                     </SelectTrigger>
                     <SelectContent>
+                         <SelectItem value="--">--</SelectItem>
                          {availableSemesters.map(sem => (
                             <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                         ))}
@@ -150,7 +152,7 @@ export default function FacultyDashboardPage() {
         </div>
       </div>
 
-      {filteredData.length > 0 ? (
+      {(selectedYear !== '--' || selectedSemester !== '--') && filteredData.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredData.map((subject) => {
             const totalStudents = subject.classes.reduce(
@@ -227,7 +229,7 @@ export default function FacultyDashboardPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>No data available for the selected year and semester.</p>
+                <p>Please select a year or semester to see performance data.</p>
             </CardContent>
         </Card>
       )}

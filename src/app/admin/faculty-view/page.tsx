@@ -113,7 +113,7 @@ const facultySubjectsData = [
 const availableFaculty = Array.from(new Set(facultySubjectsData.map(d => d.facultyName)));
 
 export default function AdminFacultyViewPage() {
-  const [selectedFaculty, setSelectedFaculty] = useState(availableFaculty[0]);
+  const [selectedFaculty, setSelectedFaculty] = useState("--");
 
   const filteredData = facultySubjectsData.filter(
     (data) => data.facultyName === selectedFaculty
@@ -136,6 +136,7 @@ export default function AdminFacultyViewPage() {
                         <SelectValue placeholder="Select Faculty" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {availableFaculty.map(faculty => (
                             <SelectItem key={faculty} value={faculty}>{faculty}</SelectItem>
                         ))}
@@ -145,7 +146,7 @@ export default function AdminFacultyViewPage() {
         </div>
       </div>
 
-      {filteredData.length > 0 ? (
+      {selectedFaculty !== '--' && filteredData.length > 0 ? (
         <div className="space-y-8">
           {filteredData.map((subject) => {
             const totalStudents = subject.classes.reduce(
@@ -222,7 +223,7 @@ export default function AdminFacultyViewPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>No data available for the selected faculty member.</p>
+                <p>Please select a faculty member to view their performance data.</p>
             </CardContent>
         </Card>
       )}

@@ -37,8 +37,8 @@ const years = ["A21", "A22", "A23", "A24"];
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"];
 
 const fileUploadSchema = z.object({
-  year: z.string({ required_error: "Please select an admission year." }),
-  department: z.string({ required_error: "Please select a department." }),
+  year: z.string().refine(val => val !== '--', { message: "Please select an admission year." }),
+  department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
   studentDetailsFile: z
     .any()
     .refine((files) => files?.[0], "File is required.")
@@ -58,8 +58,8 @@ export function StudentDetailsUploadForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(fileUploadSchema),
     defaultValues: {
-      year: undefined,
-      department: undefined,
+      year: '--',
+      department: '--',
       studentDetailsFile: undefined
     }
   });
@@ -77,8 +77,8 @@ export function StudentDetailsUploadForm() {
     });
     
     form.reset({
-      year: undefined,
-      department: undefined,
+      year: '--',
+      department: '--',
       studentDetailsFile: undefined,
     });
     if (fileInputRef.current) {
@@ -118,13 +118,14 @@ export function StudentDetailsUploadForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Admission Year</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a year" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {years.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -140,13 +141,14 @@ export function StudentDetailsUploadForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a department" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {departments.map(dep => (
                             <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                         ))}
