@@ -1,6 +1,9 @@
 
+"use client";
+
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { headers } from 'next/headers';
+import { useEffect, useState } from "react";
 
 const getNavItems = (role: string | null) => {
     if (role === 'admin') {
@@ -38,10 +41,19 @@ export default function SettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = headers();
-  const userRole = headersList.get('x-user-role') || 'student';
-  const navItems = getNavItems(userRole);
-  const title = getTitle(userRole);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fallback to localStorage on the client side
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
+
+
+  const navItems = getNavItems(role);
+  const title = getTitle(role);
 
   return (
     <DashboardLayout navItems={navItems} title={title}>
