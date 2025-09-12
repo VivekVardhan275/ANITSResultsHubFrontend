@@ -48,7 +48,7 @@ export default function StudentDashboardPage() {
             <Card
               style={{ animationDelay: `${index * 100}ms` }}
               className={cn(
-                "hover:shadow-lg transition-all duration-200 h-full flex flex-col group animate-slide-in-from-bottom opacity-0",
+                "hover:shadow-lg transition-all duration-200 h-full flex flex-col group animate-slide-in-from-bottom",
                 sem.status === "pass" &&
                   "bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/50 dark:to-emerald-950/50 hover:border-green-500",
                 sem.status === "fail" &&
