@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -65,6 +66,7 @@ const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["CSE", "IT", "ECE"];
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [selectedYear, setSelectedYear] = useState(years[0]);
   const [selectedSemester, setSelectedSemester] = useState(semesters[2]);
   const [selectedDepartment, setSelectedDepartment] = useState(departments[0]);
@@ -104,6 +106,10 @@ export default function AdminDashboardPage() {
   const handleDepartmentChange = (dept: string) => {
     setSelectedDepartment(dept);
     setSelectedSection("All");
+  }
+
+  const handleRowClick = (rollNo: string) => {
+    router.push(`/admin/student/${rollNo}`);
   }
 
   return (
@@ -204,7 +210,11 @@ export default function AdminDashboardPage() {
             <TableBody>
               {displayedResults.length > 0 ? (
                 displayedResults.map((student) => (
-                  <TableRow key={student.rollNo}>
+                  <TableRow 
+                    key={student.rollNo} 
+                    className="cursor-pointer" 
+                    onClick={() => handleRowClick(student.rollNo)}
+                  >
                     <TableCell className="font-medium">{student.rollNo}</TableCell>
                     <TableCell>{student.name}</TableCell>
                     <TableCell>{student.sgpa}</TableCell>
