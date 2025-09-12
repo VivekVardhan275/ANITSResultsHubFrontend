@@ -2,7 +2,6 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { headers } from 'next/headers';
 import { useEffect, useState } from "react";
 
 const getNavItems = (role: string | null) => {
