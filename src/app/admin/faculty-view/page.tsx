@@ -115,7 +115,7 @@ const facultySubjectsData = [
 ];
 
 
-const academicYears = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.year)))];
+const academicYears = ["--", "2023-24", "2022-23", "2021-22"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
 const sections = ["--", "A", "B", "C", "D"];
