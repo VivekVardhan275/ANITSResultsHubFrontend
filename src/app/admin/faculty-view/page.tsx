@@ -116,9 +116,9 @@ const facultySubjectsData = [
 
 
 const academicYears = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.year)))];
-const semesters = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.semester)))];
-const departments = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.department)))];
-const sections = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.section)))];
+const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
+const sections = ["--", "A", "B", "C", "D"];
 
 
 export default function AdminFacultyViewPage() {
@@ -163,67 +163,65 @@ export default function AdminFacultyViewPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Faculty Performance</h1>
-          <p className="text-muted-foreground">
-            View subject performance by applying filters.
-          </p>
-        </div>
-        <div className="flex items-end gap-4 flex-wrap">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold tracking-tight">Faculty Performance</h1>
+        <p className="text-muted-foreground">
+          View subject performance by applying filters.
+        </p>
+      </div>
+      <div className="flex justify-center items-center gap-6 flex-wrap">
+          <div className="grid gap-2">
+              <Label htmlFor="year-select">Academic Year</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger id="year-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {academicYears.map(year => (
+                          <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
+          <div className="grid gap-2">
+              <Label htmlFor="semester-select">Semester</Label>
+              <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                  <SelectTrigger id="semester-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Semester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                        {semesters.map(sem => (
+                          <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
+          <div className="grid gap-2">
+              <Label htmlFor="department-select">Department</Label>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <SelectTrigger id="department-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                        {departments.map(dep => (
+                          <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
             <div className="grid gap-2">
-                <Label htmlFor="year-select">Academic Year</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger id="year-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {academicYears.map(year => (
-                            <SelectItem key={year} value={year}>{year}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="semester-select">Semester</Label>
-                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                    <SelectTrigger id="semester-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Semester" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         {semesters.map(sem => (
-                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                    <SelectTrigger id="department-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         {departments.map(dep => (
-                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-             <div className="grid gap-2">
-                <Label htmlFor="section-select">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
-                    <SelectTrigger id="section-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         {sections.map(sec => (
-                            <SelectItem key={sec} value={sec}>{sec}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
+              <Label htmlFor="section-select">Section</Label>
+              <Select value={selectedSection} onValueChange={setSelectedSection}>
+                  <SelectTrigger id="section-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                        {sections.map(sec => (
+                          <SelectItem key={sec} value={sec}>{sec}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
       </div>
 
       {performanceByFaculty.length > 0 ? (
@@ -306,4 +304,3 @@ export default function AdminFacultyViewPage() {
     </div>
   );
 }
-
