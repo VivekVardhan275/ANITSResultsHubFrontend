@@ -132,7 +132,7 @@ export function DashboardLayout({
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link href={homeHref} className="text-2xl font-bold text-primary group-data-[collapsible=icon]:hidden">ANITS Results Hub</Link>
+          <Link href={homeHref} className="text-2xl font-bold text-sidebar-foreground group-data-[collapsible=icon]:hidden">ANITS Results Hub</Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
