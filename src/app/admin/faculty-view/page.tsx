@@ -164,8 +164,8 @@ export default function AdminFacultyViewPage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle>{subject.subjectName} ({subject.year} - {subject.semester})</CardTitle>
-                      <CardDescription>{subject.subjectCode}</CardDescription>
+                      <CardTitle>{subject.subjectName} ({subject.subjectCode})</CardTitle>
+                      <CardDescription>Academic Year: {subject.year}</CardDescription>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-muted-foreground">
