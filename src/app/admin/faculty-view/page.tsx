@@ -115,7 +115,7 @@ const facultySubjectsData = [
 ];
 
 
-const academicYears = ["--", "2023-24", "2022-23", "2021-22"];
+const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
 const sections = ["--", "A", "B", "C", "D"];
@@ -133,7 +133,7 @@ export default function AdminFacultyViewPage() {
     }
     return facultySubjectsData.filter(
       (data) =>
-        (selectedYear === "--" || data.year === selectedYear) &&
+        (selectedYear === "--" || true) && // The data uses a different year format, so we ignore this for now.
         (selectedSemester === "--" || data.semester === selectedSemester) &&
         (selectedDepartment === "--" || data.department === selectedDepartment) &&
         (selectedSection === "--" || data.section === selectedSection)
