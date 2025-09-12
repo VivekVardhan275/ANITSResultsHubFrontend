@@ -1,4 +1,5 @@
 
+"use client";
 
 import {
   Card,
@@ -19,7 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
+
 
 const allStudentsData: Record<string, { name: string; department: string; section: string; semesters: any[] }> = {
     "321126510001": {
@@ -55,11 +57,16 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
 };
 
 export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
+  const router = useRouter();
   const studentRollNo = params.rollNo;
   const studentData = allStudentsData[studentRollNo];
 
   if (!studentData) {
     notFound();
+  }
+
+  const handleRowClick = (semester: string) => {
+    router.push(`/admin/student/${studentRollNo}/${semester}`);
   }
 
   return (
@@ -110,7 +117,7 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
         <CardHeader>
           <CardTitle>Semester Results</CardTitle>
           <CardDescription>
-            A summary of performance across all semesters.
+            A summary of performance across all semesters. Click a row to view details.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -125,14 +132,18 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
                 </TableHeader>
                 <TableBody>
                   {studentData.semesters.map((sem) => (
-                    <TableRow key={sem.semester}>
-                      <TableCell className="font-medium">{sem.semester}</TableCell>
-                      <TableCell>{sem.sgpa}</TableCell>
-                      <TableCell>
-                         <Badge variant={sem.status === "fail" ? "destructive" : "secondary"}>
-                            {sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
-                        </Badge>
-                      </TableCell>
+                    <TableRow 
+                        key={sem.semester} 
+                        className="cursor-pointer" 
+                        onClick={() => handleRowClick(sem.semester)}
+                    >
+                        <TableCell className="font-medium">{sem.semester}</TableCell>
+                        <TableCell>{sem.sgpa}</TableCell>
+                        <TableCell>
+                            <Badge variant={sem.status === "fail" ? "destructive" : "secondary"}>
+                                {sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
+                            </Badge>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -147,4 +158,3 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
     </div>
   );
 }
-
