@@ -59,23 +59,25 @@ export function DashboardLayout({
     setUserRole(role);
     let name = "ANITS User";
     let email = "user@anits.edu.in";
+    let newHomeHref = "/login";
+
     if (role === 'student') {
         name = localStorage.getItem("studentRollNo") || "Student";
         email = localStorage.getItem("studentEmail") || "student@anits.edu.in";
-        setHomeHref("/student/dashboard");
+        newHomeHref = "/student/dashboard";
     } else if (role === 'faculty') {
         name = localStorage.getItem("facultyUsername") || "Faculty";
         email = localStorage.getItem("facultyEmail") || "faculty@anits.edu.in";
-        setHomeHref("/faculty/dashboard");
+        newHomeHref = "/faculty/dashboard";
     } else if (role === 'admin') {
         name = localStorage.getItem("adminUsername") || "Admin";
         email = localStorage.getItem("adminEmail") || "admin@anits.edu.in";
-        setHomeHref("/admin/dashboard");
-    } else {
-        setHomeHref("/login");
+        newHomeHref = "/admin/dashboard";
     }
+
     setUserName(name);
     setUserEmail(email);
+    setHomeHref(newHomeHref);
 
     if (typeof window !== 'undefined') {
         document.cookie = `userRole=${role || ''}; path=/;`;
