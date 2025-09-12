@@ -63,7 +63,7 @@ const resultsData = {
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const departments = ["CSE", "IT", "ECE"];
+const departments = ["CSE", "IT", "ECE", "CSM"];
 const sections = ["A", "B", "C", "D"];
 
 export default function AdminDashboardPage() {
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
     // Combine with static list and remove duplicates
     const availableSections = Array.from(new Set([...sections, ...departmentSections]));
 
-    return ["--", "All", ...availableSections];
+    return ["--", "All", ...availableSections.sort()];
   }, [selectedYear, selectedSemester, selectedDepartment]);
 
   const displayedResults = useMemo(() => {
@@ -133,8 +133,10 @@ export default function AdminDashboardPage() {
       return "Results";
     }
     let title = `Results for ${selectedYear} - ${selectedSemester} - ${selectedDepartment}`;
-    if (selectedSection !== '--') {
-      title += ` - ${selectedSection === 'All' ? 'All Sections' : `Section ${selectedSection}`}`;
+    if (selectedSection !== '--' && selectedSection !== 'All') {
+      title += ` - Section ${selectedSection}`;
+    } else if (selectedSection === 'All') {
+        title += ` - All Sections`;
     }
     return title;
   }

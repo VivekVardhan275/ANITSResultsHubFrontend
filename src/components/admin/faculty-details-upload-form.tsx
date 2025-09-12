@@ -33,7 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General"];
+const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
 const academicYears = ["2023-24", "2022-23", "2021-22"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const sections = ["A", "B", "C", "D"];

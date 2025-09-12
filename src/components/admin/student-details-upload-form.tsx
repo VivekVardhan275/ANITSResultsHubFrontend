@@ -34,7 +34,7 @@ import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const years = ["A21", "A22", "A23", "A24"];
-const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL"];
+const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
 
 const fileUploadSchema = z.object({
   year: z.string().refine(val => val !== '--', { message: "Please select an admission year." }),
