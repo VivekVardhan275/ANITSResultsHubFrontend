@@ -67,25 +67,32 @@ const departments = ["CSE", "IT", "ECE"];
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [selectedYear, setSelectedYear] = useState(years[0]);
-  const [selectedSemester, setSelectedSemester] = useState(semesters[2]);
-  const [selectedDepartment, setSelectedDepartment] = useState(departments[0]);
-  const [selectedSection, setSelectedSection] = useState("All");
+  const [selectedYear, setSelectedYear] = useState("--");
+  const [selectedSemester, setSelectedSemester] = useState("--");
+  const [selectedDepartment, setSelectedDepartment] = useState("--");
+  const [selectedSection, setSelectedSection] = useState("--");
   const [searchTerm, setSearchTerm] = useState("");
 
   const sectionsForDepartment = useMemo(() => {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
+      return ["--"];
+    }
     const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
     const allSections = Object.keys(semesterResults);
     const filteredSections = allSections.filter(sec => sec.startsWith(selectedDepartment));
-    return ["All", ...filteredSections.map(sec => sec.split('-')[1])];
+    return ["--", "All", ...filteredSections.map(sec => sec.split('-')[1])];
   }, [selectedYear, selectedSemester, selectedDepartment]);
 
   const displayedResults = useMemo(() => {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
+        return [];
+    }
+
     const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
     
     let resultsToDisplay;
 
-    if (selectedSection === "All") {
+    if (selectedSection === "--" || selectedSection === "All") {
         resultsToDisplay = Object.keys(semesterResults)
             .filter(key => key.startsWith(selectedDepartment))
             .flatMap(key => semesterResults[key]);
@@ -105,11 +112,22 @@ export default function AdminDashboardPage() {
   
   const handleDepartmentChange = (dept: string) => {
     setSelectedDepartment(dept);
-    setSelectedSection("All");
+    setSelectedSection("--");
   }
 
   const handleRowClick = (rollNo: string) => {
     router.push(`/admin/student/${rollNo}`);
+  }
+
+  const getCardTitle = () => {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
+      return "Results";
+    }
+    let title = `Results for ${selectedYear} - ${selectedSemester} - ${selectedDepartment}`;
+    if (selectedSection !== '--') {
+      title += ` - ${selectedSection}`;
+    }
+    return title;
   }
 
   return (
@@ -129,6 +147,7 @@ export default function AdminDashboardPage() {
                         <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {years.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -142,6 +161,7 @@ export default function AdminDashboardPage() {
                         <SelectValue placeholder="Select Semester" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                          {semesters.map(sem => (
                             <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                         ))}
@@ -155,6 +175,7 @@ export default function AdminDashboardPage() {
                         <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                          {departments.map(dep => (
                             <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                         ))}
@@ -181,7 +202,7 @@ export default function AdminDashboardPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Results for {selectedYear} - {selectedSemester} - {selectedDepartment} - {selectedSection}</CardTitle>
+              <CardTitle>{getCardTitle()}</CardTitle>
               <CardDescription className="mt-1">
                 A list of all students and their SGPA for the selected term.
               </CardDescription>
