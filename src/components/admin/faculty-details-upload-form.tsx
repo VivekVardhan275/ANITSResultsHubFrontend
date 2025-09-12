@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,84 +30,98 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2, UserPlus } from "lucide-react";
 
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General"];
+const academicYears = ["2023-24", "2022-23", "2021-22"];
+const sections = ["A", "B", "C", "D"];
 
-const fileUploadSchema = z.object({
+const facultyDetailsSchema = z.object({
   department: z.string({ required_error: "Please select a department." }),
-  facultyDetailsFile: z
-    .any()
-    .refine((files) => files?.[0], "File is required.")
-    .refine(
-      (files) => files?.[0]?.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Only .xlsx files are accepted."
-    ),
+  academicYear: z.string({ required_error: "Please select an academic year." }),
+  section: z.string({ required_error: "Please select a section." }),
+  subject: z.string().min(1, "Subject Name with Code is required."),
+  facultyName: z.string().min(1, "Faculty name is required."),
 });
 
-type FormValues = z.infer<typeof fileUploadSchema>;
+type FormValues = z.infer<typeof facultyDetailsSchema>;
 
 export function FacultyDetailsUploadForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(fileUploadSchema),
+    resolver: zodResolver(facultyDetailsSchema),
     defaultValues: {
       department: undefined,
-      facultyDetailsFile: undefined
+      academicYear: undefined,
+      section: undefined,
+      subject: "",
+      facultyName: "",
     }
   });
 
-  const selectedFile = form.watch("facultyDetailsFile")?.[0];
-
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    // Simulate API call for file upload
+    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     toast({
-      title: "Upload Successful!",
-      description: `Faculty details for ${values.department} department have been uploaded.`,
+      title: "Success!",
+      description: `Details for ${values.facultyName} have been saved.`,
     });
     
-    form.reset({
-      department: undefined,
-      facultyDetailsFile: undefined,
-    });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    
+    form.reset();
     setIsLoading(false);
   };
-
-  const handleFileAreaClick = () => {
-    fileInputRef.current?.click();
-  }
-
-  const handleRemoveFile = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    form.resetField("facultyDetailsFile");
-    if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-    }
-  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Faculty Details Upload</CardTitle>
+        <CardTitle>Faculty Subject Assignment</CardTitle>
         <CardDescription>
-          Select the department and the faculty details file (.xlsx).
+          Enter the faculty and subject details for a specific class section.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="facultyName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Faculty Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter faculty name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="academicYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Academic Year</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an academic year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {academicYears.map(year => (
+                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <FormField
                 control={form.control}
                 name="department"
@@ -130,67 +144,52 @@ export function FacultyDetailsUploadForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="section"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Section</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a section" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {sections.map(sec => (
+                            <SelectItem key={sec} value={sec}>{sec}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="md:col-span-2">
+                <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Subject Name with Code</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g., Data Structures - CS211" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
             </div>
             
-            <FormField
-              control={form.control}
-              name="facultyDetailsFile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Faculty Details File</FormLabel>
-                   <div 
-                    className={cn(
-                      "relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-secondary/50 hover:bg-secondary/80 transition-colors",
-                      form.getFieldState('facultyDetailsFile').error && "border-destructive"
-                    )}
-                    onClick={handleFileAreaClick}
-                  >
-                     <FormControl>
-                        <Input
-                          type="file"
-                          accept=".xlsx"
-                          className="hidden"
-                          ref={fileInputRef}
-                          onChange={(e) => field.onChange(e.target.files)}
-                        />
-                      </FormControl>
-                    {selectedFile ? (
-                      <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <FileIcon className="w-12 h-12 text-primary" />
-                        <p className="mt-2 text-sm font-medium text-foreground">{selectedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">{Math.round(selectedFile.size / 1024)} KB</p>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="absolute top-2 right-2 h-7 w-7 rounded-full bg-background/50 hover:bg-destructive/10"
-                            onClick={handleRemoveFile}
-                        >
-                           <X className="h-4 w-4 text-destructive"/>
-                           <span className="sr-only">Remove file</span>
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-muted-foreground">
-                          <UploadCloud className="w-12 h-12" />
-                          <p className="mt-2 text-sm">
-                            <span className="font-semibold text-primary">Click to upload</span> or drag and drop
-                          </p>
-                          <p className="text-xs">Excel files only (.xlsx)</p>
-                      </div>
-                    )}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <Button type="submit" disabled={isLoading} className="w-full md:w-auto">
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <UploadCloud className="mr-2 h-4 w-4" />
+                <UserPlus className="mr-2 h-4 w-4" />
               )}
-              Upload File
+              Add Faculty Details
             </Button>
           </form>
         </Form>

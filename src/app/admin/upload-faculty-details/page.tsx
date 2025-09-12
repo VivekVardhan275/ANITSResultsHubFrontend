@@ -6,7 +6,7 @@ export default function UploadFacultyDetailsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Upload Faculty Details</h1>
         <p className="text-muted-foreground">
-          Upload an Excel file with details of newly joined faculty members.
+          Enter the details for the faculty member and the subject they are teaching.
         </p>
       </div>
       <FacultyDetailsUploadForm />
