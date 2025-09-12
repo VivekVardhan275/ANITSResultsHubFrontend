@@ -33,10 +33,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
-const academicYears = ["2023-24", "2022-23", "2021-22"];
-const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const sections = ["A", "B", "C", "D"];
+const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
+const academicYears = ["--", "2023-24", "2022-23", "2021-22"];
+const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const sections = ["--", "A", "B", "C", "D"];
 
 const fileUploadSchema = z.object({
   department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
@@ -127,7 +127,6 @@ export function FacultyDetailsUploadForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
                         {departments.map(dep => (
                             <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                         ))}
@@ -150,7 +149,6 @@ export function FacultyDetailsUploadForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                         <SelectItem value="--">--</SelectItem>
                         {academicYears.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -173,7 +171,6 @@ export function FacultyDetailsUploadForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
                         {semesters.map(sem => (
                             <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                         ))}
@@ -196,7 +193,6 @@ export function FacultyDetailsUploadForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
                         {sections.map(sec => (
                             <SelectItem key={sec} value={sec}>{sec}</SelectItem>
                         ))}

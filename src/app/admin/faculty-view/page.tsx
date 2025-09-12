@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -34,18 +34,23 @@ const facultySubjectsData = [
     subjectName: "Data Structures",
     subjectCode: "CS211",
     facultyName: "Dr. Anand Kumar",
-    classes: [
-      {
-        className: "2-1 CSE",
-        totalStudents: 60,
-        studentsPassed: 52,
-      },
-      {
-        className: "2-1 IT",
-        totalStudents: 55,
-        studentsPassed: 48,
-      },
-    ],
+    department: "CSE",
+    section: "A",
+    className: "2-1 CSE-A",
+    totalStudents: 60,
+    studentsPassed: 52,
+  },
+  {
+    year: "2023-24",
+    semester: "2-1",
+    subjectName: "Data Structures",
+    subjectCode: "CS211",
+    facultyName: "Dr. Anand Kumar",
+    department: "IT",
+    section: "A",
+    className: "2-1 IT-A",
+    totalStudents: 55,
+    studentsPassed: 48,
   },
   {
     year: "2023-24",
@@ -53,13 +58,11 @@ const facultySubjectsData = [
     subjectName: "Compiler Design",
     subjectCode: "CS321",
     facultyName: "Dr. Sunita Sharma",
-    classes: [
-      {
-        className: "3-2 CSE",
-        totalStudents: 62,
-        studentsPassed: 58,
-      },
-    ],
+    department: "CSE",
+    section: "A",
+    className: "3-2 CSE-A",
+    totalStudents: 62,
+    studentsPassed: 58,
   },
   {
     year: "2023-24",
@@ -67,18 +70,23 @@ const facultySubjectsData = [
     subjectName: "Web Technologies",
     subjectCode: "CS324",
     facultyName: "Prof. Rajesh Singh",
-    classes: [
-      {
-        className: "3-2 CSE",
-        totalStudents: 62,
-        studentsPassed: 60,
-      },
-      {
-        className: "3-2 IT",
-        totalStudents: 58,
-        studentsPassed: 50,
-      },
-    ],
+    department: "CSE",
+    section: "A",
+    className: "3-2 CSE-A",
+    totalStudents: 62,
+    studentsPassed: 60,
+  },
+  {
+    year: "2023-24",
+    semester: "3-2",
+    subjectName: "Web Technologies",
+    subjectCode: "CS324",
+    facultyName: "Prof. Rajesh Singh",
+    department: "IT",
+    section: "B",
+    className: "3-2 IT-B",
+    totalStudents: 58,
+    studentsPassed: 50,
   },
   {
     year: "2022-23",
@@ -86,59 +94,131 @@ const facultySubjectsData = [
     subjectName: "Programming in C",
     subjectCode: "CS111",
     facultyName: "Dr. Priya Mehta",
-    classes: [
-      {
-        className: "1-1 ECE",
-        totalStudents: 70,
-        studentsPassed: 65,
-      },
-    ],
+    department: "ECE",
+    section: "C",
+    className: "1-1 ECE-C",
+    totalStudents: 70,
+    studentsPassed: 65,
   },
-   {
+  {
     year: "2023-24",
     semester: "2-1",
     subjectName: "Operating Systems",
     subjectCode: "CS214",
     facultyName: "Dr. Sunita Sharma",
-    classes: [
-      {
-        className: "2-1 IT",
-        totalStudents: 58,
-        studentsPassed: 55,
-      },
-    ],
+    department: "IT",
+    section: "A",
+    className: "2-1 IT-A",
+    totalStudents: 58,
+    studentsPassed: 55,
   },
 ];
 
-const availableFaculty = Array.from(new Set(facultySubjectsData.map(d => d.facultyName)));
+
+const academicYears = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.year)))];
+const semesters = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.semester)))];
+const departments = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.department)))];
+const sections = ["--", ...Array.from(new Set(facultySubjectsData.map(d => d.section)))];
+
 
 export default function AdminFacultyViewPage() {
-  const [selectedFaculty, setSelectedFaculty] = useState("--");
+  const [selectedYear, setSelectedYear] = useState("--");
+  const [selectedSemester, setSelectedSemester] = useState("--");
+  const [selectedDepartment, setSelectedDepartment] = useState("--");
+  const [selectedSection, setSelectedSection] = useState("--");
 
-  const filteredData = facultySubjectsData.filter(
-    (data) => data.facultyName === selectedFaculty
-  );
+  const filteredData = useMemo(() => {
+    if (selectedYear === '--' && selectedSemester === '--' && selectedDepartment === '--' && selectedSection === '--') {
+      return [];
+    }
+    return facultySubjectsData.filter(
+      (data) =>
+        (selectedYear === "--" || data.year === selectedYear) &&
+        (selectedSemester === "--" || data.semester === selectedSemester) &&
+        (selectedDepartment === "--" || data.department === selectedDepartment) &&
+        (selectedSection === "--" || data.section === selectedSection)
+    );
+  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection]);
+
+  const performanceByFaculty = useMemo(() => {
+    const facultyMap = new Map<string, { subjects: any[], totalStudents: number, totalPassed: number }>();
+    
+    filteredData.forEach(item => {
+        if (!facultyMap.has(item.facultyName)) {
+            facultyMap.set(item.facultyName, { subjects: [], totalStudents: 0, totalPassed: 0 });
+        }
+        const facultyData = facultyMap.get(item.facultyName)!;
+        facultyData.subjects.push(item);
+        facultyData.totalStudents += item.totalStudents;
+        facultyData.totalPassed += item.studentsPassed;
+    });
+
+    return Array.from(facultyMap.entries()).map(([name, data]) => ({
+        facultyName: name,
+        ...data
+    }));
+
+  }, [filteredData]);
+
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Faculty Performance</h1>
           <p className="text-muted-foreground">
-            View subject performance by selecting a faculty member.
+            View subject performance by applying filters.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-end gap-4 flex-wrap">
             <div className="grid gap-2">
-                <Label htmlFor="faculty-select">Faculty Name</Label>
-                <Select value={selectedFaculty} onValueChange={setSelectedFaculty}>
-                    <SelectTrigger id="faculty-select" className="w-[240px]">
-                        <SelectValue placeholder="Select Faculty" />
+                <Label htmlFor="year-select">Academic Year</Label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger id="year-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
-                        {availableFaculty.map(faculty => (
-                            <SelectItem key={faculty} value={faculty}>{faculty}</SelectItem>
+                        {academicYears.map(year => (
+                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="semester-select">Semester</Label>
+                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                    <SelectTrigger id="semester-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {semesters.map(sem => (
+                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="department-select">Department</Label>
+                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                    <SelectTrigger id="department-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {departments.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+             <div className="grid gap-2">
+                <Label htmlFor="section-select">Section</Label>
+                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                    <SelectTrigger id="section-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                         {sections.map(sec => (
+                            <SelectItem key={sec} value={sec}>{sec}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -146,27 +226,21 @@ export default function AdminFacultyViewPage() {
         </div>
       </div>
 
-      {selectedFaculty !== '--' && filteredData.length > 0 ? (
+      {performanceByFaculty.length > 0 ? (
         <div className="space-y-8">
-          {filteredData.map((subject) => {
-            const totalStudents = subject.classes.reduce(
-              (acc, curr) => acc + curr.totalStudents,
-              0
-            );
-            const totalPassed = subject.classes.reduce(
-              (acc, curr) => acc + curr.studentsPassed,
-              0
-            );
+          {performanceByFaculty.map((faculty) => {
             const overallPassPercentage =
-              totalStudents > 0 ? (totalPassed / totalStudents) * 100 : 0;
+              faculty.totalStudents > 0
+                ? (faculty.totalPassed / faculty.totalStudents) * 100
+                : 0;
 
             return (
-              <Card key={`${subject.subjectCode}-${subject.semester}-${subject.year}`}>
+              <Card key={faculty.facultyName}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle>{subject.subjectName} ({subject.subjectCode})</CardTitle>
-                      <CardDescription>Academic Year: {subject.year}</CardDescription>
+                      <CardTitle>{faculty.facultyName}</CardTitle>
+                      <CardDescription>Performance Summary</CardDescription>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-muted-foreground">
@@ -182,22 +256,24 @@ export default function AdminFacultyViewPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead>Subject</TableHead>
                         <TableHead>Class</TableHead>
                         <TableHead>Passed / Total</TableHead>
                         <TableHead className="w-[120px]">Pass %</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {subject.classes.map((cls) => {
+                      {faculty.subjects.map((subject) => {
                         const passPercentage =
-                          (cls.studentsPassed / cls.totalStudents) * 100;
+                          (subject.studentsPassed / subject.totalStudents) * 100;
                         return (
-                          <TableRow key={cls.className}>
+                          <TableRow key={`${subject.subjectCode}-${subject.className}`}>
                             <TableCell className="font-medium">
-                              {cls.className}
+                              {subject.subjectName} ({subject.subjectCode})
                             </TableCell>
+                            <TableCell>{subject.className}</TableCell>
                             <TableCell>
-                              {cls.studentsPassed} / {cls.totalStudents}
+                              {subject.studentsPassed} / {subject.totalStudents}
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
@@ -223,10 +299,11 @@ export default function AdminFacultyViewPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select a faculty member to view their performance data.</p>
+                <p>Please select filters to view faculty performance data.</p>
             </CardContent>
         </Card>
       )}
     </div>
   );
 }
+
