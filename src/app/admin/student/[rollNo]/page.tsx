@@ -58,15 +58,14 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
 
 export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
   const router = useRouter();
-  const studentRollNo = params.rollNo;
-  const studentData = allStudentsData[studentRollNo];
+  const studentData = allStudentsData[params.rollNo];
 
   if (!studentData) {
     notFound();
   }
 
   const handleRowClick = (semester: string) => {
-    router.push(`/admin/student/${studentRollNo}/${semester}`);
+    router.push(`/admin/student/${params.rollNo}/${semester}`);
   }
 
   return (
@@ -81,7 +80,7 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
         <div>
             <h1 className="text-3xl font-bold tracking-tight">Student Profile</h1>
             <p className="text-muted-foreground">
-              Detailed academic performance for {studentData.name} ({studentRollNo}).
+              Detailed academic performance for {studentData.name} ({params.rollNo}).
             </p>
         </div>
       </div>
@@ -99,7 +98,7 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
                 </div>
                 <div className="space-y-2">
                     <h3 className="font-semibold">Roll No</h3>
-                    <p className="text-muted-foreground">{studentRollNo}</p>
+                    <p className="text-muted-foreground">{params.rollNo}</p>
                 </div>
                 <div className="space-y-2">
                     <h3 className="font-semibold">Department</h3>
