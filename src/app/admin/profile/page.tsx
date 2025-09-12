@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 
-export default function FacultyProfilePage() {
+export default function AdminProfilePage() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
 
     useEffect(() => {
-        const storedUsername = localStorage.getItem("facultyUsername");
-        const storedEmail = localStorage.getItem("facultyEmail");
+        const storedUsername = localStorage.getItem("adminUsername");
+        const storedEmail = localStorage.getItem("adminEmail");
         if (storedUsername) setUsername(storedUsername);
         if (storedEmail) setEmail(storedEmail);
     }, []);
@@ -35,15 +35,15 @@ export default function FacultyProfilePage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <h3 className="font-semibold">Username</h3>
-                        <p className="text-muted-foreground">{username || "faculty.user"}</p>
+                        <p className="text-muted-foreground">{username || "admin.user"}</p>
                     </div>
                     <div className="space-y-2">
                         <h3 className="font-semibold">Email</h3>
-                        <p className="text-muted-foreground">{email || "faculty.user@anits.edu.in"}</p>
+                        <p className="text-muted-foreground">{email || "admin.user@anits.edu.in"}</p>
                     </div>
-                    <div className="space-y-2">
+                     <div className="space-y-2">
                         <h3 className="font-semibold">Role</h3>
-                        <p className="text-muted-foreground">Faculty</p>
+                        <p className="text-muted-foreground">Administrator</p>
                     </div>
                 </CardContent>
             </Card>
