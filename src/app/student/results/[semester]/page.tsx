@@ -1,3 +1,6 @@
+
+"use client";
+
 import {
   Card,
   CardContent,
@@ -16,99 +19,66 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
-import { notFound } from "next/navigation";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
+import { notFound, useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { formatSubjectName } from "@/services/api";
 
-const allResultsData: Record<string, { sgpa: string; cgpa: string; status: string; results: any[] }> = {
-  "1-1": {
-    sgpa: "8.5",
-    cgpa: "8.5",
-    status: "pass",
-    results: [
-      { subjectCode: "MA111", subjectName: "Calculus", grade: "A" },
-      { subjectCode: "PH111", subjectName: "Physics", grade: "B+" },
-      { subjectCode: "CS111", subjectName: "Intro to Programming", grade: "A" },
-      { subjectCode: "EE111", subjectName: "Basic Electrical Engg.", grade: "B" },
-    ]
-  },
-  "1-2": {
-    sgpa: "8.8",
-    cgpa: "8.65",
-    status: "pass",
-    results: [
-        { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A" },
-        { subjectCode: "CY121", subjectName: "Chemistry", grade: "A" },
-        { subjectCode: "CS121", subjectName: "Data Structures", grade: "B+" },
-        { subjectCode: "HU121", subjectName: "English Communication", grade: "A" },
-    ]
-  },
-  "2-1": {
-    sgpa: "7.2",
-    cgpa: "8.1",
-    status: "fail",
-    results: [
-        { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+" },
-        { subjectCode: "EC211", subjectName: "Digital Logic", grade: "A" },
-        { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F" },
-        { subjectCode: "CS212", subjectName: "Object Oriented Programming", grade: "B+" },
-    ]
-  },
-  "2-2": {
-    sgpa: "9.0",
-    cgpa: "8.35",
-    status: "pass",
-     results: [
-        { subjectCode: "CS221", subjectName: "Algorithms", grade: "A+" },
-        { subjectCode: "EE221", subjectName: "Network Theory", grade: "B+" },
-        { subjectCode: "CS222", subjectName: "Computer Organization", grade: "A" },
-        { subjectCode: "HU221", subjectName: "Economics", grade: "A-" },
-    ]
-  },
-  "3-1": {
-    sgpa: "8.7",
-    cgpa: "8.43",
-    status: "pass",
-    results: [
-        { subjectCode: "CS311", subjectName: "Database Systems", grade: "A" },
-        { subjectCode: "CS312", subjectName: "Operating Systems", grade: "B+" },
-        { subjectCode: "CS313", subjectName: "Formal Languages", grade: "B" },
-        { subjectCode: "CS314", subjectName: "Software Engineering", grade: "A-" },
-    ]
-  },
-  "3-2": {
-    sgpa: "8.9",
-    cgpa: "8.51",
-    status: "pass",
-    results: [
-      { subjectCode: "CS321", subjectName: "Compiler Design", grade: "A" },
-      { subjectCode: "CS322", subjectName: "Computer Networks", grade: "A+" },
-      { subjectCode: "CS323", subjectName: "Artificial Intelligence", grade: "B+" },
-      { subjectCode: "CS324", subjectName: "Web Technologies", grade: "A" },
-    ]
-  },
-  "4-1": {
-    sgpa: "0.00",
-    cgpa: "8.51",
-    status: "pending",
-    results: []
-  },
-  "4-2": {
-    sgpa: "0.00",
-    cgpa: "8.51",
-    status: "pending",
-    results: []
+
+const nonSubjectKeys = ["rollno", "sgpa", "cgpa", "section"];
+
+const checkHasFGrade = (result: any | null): boolean => {
+    if (!result) return false;
+    for (const key in result) {
+        if (!nonSubjectKeys.includes(key.toLowerCase())) {
+            if (result[key] === 'F') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export default function SemesterResultPage() {
+  const params = useParams();
+  const semesterId = params.semester as string;
+
+  const [semesterData, setSemesterData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("studentData");
+    if (storedData) {
+      const allResults = JSON.parse(storedData).results;
+      const dataForSemester = allResults[semesterId];
+      if (dataForSemester) {
+         const hasFGrade = checkHasFGrade(dataForSemester);
+         setSemesterData({
+            ...dataForSemester,
+            status: hasFGrade ? 'fail' : 'pass'
+         });
+      } else if (dataForSemester === null) {
+        setSemesterData({ status: 'pending', results: [] });
+      }
+    }
+    setIsLoading(false);
+  }, [semesterId]);
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-full min-h-[60vh]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
   }
-};
-
-
-export default function SemesterResultPage({ params }: { params: { semester: string } }) {
-  const semesterId = params.semester;
-  const semesterData = allResultsData[semesterId];
 
   if (!semesterData) {
     notFound();
   }
+
+  const results = Object.entries(semesterData)
+    .filter(([key]) => !nonSubjectKeys.includes(key.toLowerCase()));
 
   return (
     <div className="space-y-8">
@@ -137,11 +107,11 @@ export default function SemesterResultPage({ params }: { params: { semester: str
                    semesterData.status === "pass" && "text-green-600 dark:text-green-400",
                    semesterData.status === "fail" && "text-red-600 dark:text-red-400",
                    semesterData.status === "pending" && "text-primary"
-                )}>{semesterData.sgpa}</CardDescription>
+                )}>{semesterData.sgpa || '0.00'}</CardDescription>
              </div>
              <div>
                 <CardTitle>CGPA</CardTitle>
-                <CardDescription className="font-bold text-xl text-primary">{semesterData.cgpa}</CardDescription>
+                <CardDescription className="font-bold text-xl text-primary">{semesterData.cgpa || '0.00'}</CardDescription>
              </div>
              <div>
                 <CardTitle>Status</CardTitle>
@@ -159,23 +129,21 @@ export default function SemesterResultPage({ params }: { params: { semester: str
           </Button>
         </CardHeader>
         <CardContent>
-           {semesterData.results.length > 0 ? (
+           {results.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Subject Code</TableHead>
                     <TableHead>Subject Name</TableHead>
                     <TableHead className="text-right">Grade</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {semesterData.results.map((result) => (
-                    <TableRow key={result.subjectCode}>
-                      <TableCell>{result.subjectCode}</TableCell>
-                      <TableCell className="font-medium">{result.subjectName}</TableCell>
+                  {results.map(([subject, grade]) => (
+                    <TableRow key={subject}>
+                      <TableCell className="font-medium">{formatSubjectName(subject)}</TableCell>
                       <TableCell className="p-2">
                         <div className="flex justify-end">
-                            <Badge variant={result.grade === "F" ? "destructive" : "default"} className="w-10 h-8 flex items-center justify-center text-base">{result.grade}</Badge>
+                            <Badge variant={grade === "F" ? "destructive" : "default"} className="w-10 h-8 flex items-center justify-center text-base">{String(grade)}</Badge>
                         </div>
                       </TableCell>
                     </TableRow>

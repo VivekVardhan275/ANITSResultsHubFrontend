@@ -19,18 +19,34 @@ const knownSubjects: { [key: string]: string } = {
 };
 
 export const formatSubjectName = (subjectKey: string): string => {
-    const cleanedKey = subjectKey.toLowerCase().replace(/_/g, '');
+    const cleanedKey = subjectKey.toLowerCase().replace(/_/g, '').replace(/grad/g, '').trim();
     
     if (knownSubjects[cleanedKey]) {
         return knownSubjects[cleanedKey];
     }
     
-    // Fallback for unknown subjects
     return cleanedKey
-        .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
+};
+
+export const getStudentResults = async (rollNo: string): Promise<any> => {
+    try {
+        const response = await axios.get(`${backendUrl}/api/student/get-results`, {
+            params: { roll_no: rollNo }
+        });
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || `Failed to fetch student results. Status: ${response.status}`);
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred during the API request. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred.');
+    }
 };
 
 

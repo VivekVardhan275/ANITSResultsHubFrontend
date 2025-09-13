@@ -14,14 +14,23 @@ export default function StudentProfilePage() {
     const [rollNo, setRollNo] = useState("");
     const [email, setEmail] = useState("");
     const [studentName, setStudentName] = useState("");
+    const [section, setSection] = useState("");
+    const [department, setDepartment] = useState("");
+
 
     useEffect(() => {
         const storedRollNo = localStorage.getItem("studentRollNo");
         const storedEmail = localStorage.getItem("studentEmail");
         const storedName = localStorage.getItem("studentName");
+        const storedSection = localStorage.getItem("studentSection");
+        const storedDepartment = localStorage.getItem("studentDepartment");
+
         if (storedRollNo) setRollNo(storedRollNo);
         if (storedEmail) setEmail(storedEmail);
         if(storedName) setStudentName(storedName);
+        if(storedSection) setSection(storedSection);
+        if(storedDepartment) setDepartment(storedDepartment);
+
     }, []);
 
     return (
@@ -47,11 +56,11 @@ export default function StudentProfilePage() {
                         </div>
                         <div className="space-y-2">
                             <h3 className="font-semibold">Department</h3>
-                            <p className="text-muted-foreground">Computer Science & Engineering</p>
+                            <p className="text-muted-foreground">{department || "Not Available"}</p>
                         </div>
                         <div className="space-y-2">
                             <h3 className="font-semibold">Section</h3>
-                            <p className="text-muted-foreground">A</p>
+                            <p className="text-muted-foreground">{section || "Not Available"}</p>
                         </div>
                      </div>
                 </CardContent>

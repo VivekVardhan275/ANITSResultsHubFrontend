@@ -9,41 +9,84 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowRight, CircleAlert, CircleCheck } from "lucide-react";
+import { ArrowRight, CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
-const semesterData = [
-  { semester: "1-1", sgpa: "8.5", status: "pass" },
-  { semester: "1-2", sgpa: "8.8", status: "pass" },
-  { semester: "2-1", sgpa: "7.2", status: "fail" },
-  { semester: "2-2", sgpa: "9.0", status: "pass" },
-  { semester: "3-1", sgpa: "8.7", status: "pass" },
-  { semester: "3-2", sgpa: "8.9", status: "pass" },
-  { semester: "4-1", sgpa: "0.00", status: "pending" },
-  { semester: "4-2", sgpa: "0.00", status: "pending" },
-];
+interface SemesterResult {
+  sgpa: string;
+  cgpa: string;
+  [key: string]: any; // for subject grades
+}
+
+interface Results {
+  [semester: string]: SemesterResult | null;
+}
+
+const checkHasFGrade = (result: SemesterResult | null): boolean => {
+    if (!result) return false;
+    for (const key in result) {
+        if (key !== 'sgpa' && key !== 'cgpa' && key !== 'rollno' && key !== 'section') {
+            if (result[key] === 'F') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 export default function StudentDashboardPage() {
-  const [rollNo, setRollNo] = useState("");
+  const [studentData, setStudentData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedRollNo = localStorage.getItem("studentRollNo");
-    if (storedRollNo) {
-      setRollNo(storedRollNo);
+    const storedData = localStorage.getItem("studentData");
+    if (storedData) {
+      setStudentData(JSON.parse(storedData));
     }
+    setIsLoading(false);
   }, []);
+
+  const semesterData = useMemo(() => {
+    if (!studentData?.results) return [];
+    
+    return Object.entries(studentData.results).map(([semester, result]: [string, any]) => {
+      if (result) {
+        const hasFGrade = checkHasFGrade(result);
+        return {
+          semester,
+          sgpa: result.sgpa || "0.00",
+          status: hasFGrade ? "fail" : "pass",
+        };
+      } else {
+        return {
+          semester,
+          sgpa: "0.00",
+          status: "pending",
+        };
+      }
+    }).sort((a,b) => a.semester.localeCompare(b.semester)); // Ensure semesters are sorted
+  }, [studentData]);
+
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-full min-h-[60vh]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-8 animate-slide-in-from-bottom">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome, {rollNo || "Student"}!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome, {studentData?.name || "Student"}!</h1>
         <p className="text-muted-foreground">
           Here are your results for all semesters. Click on a card to view details.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {semesterData.map((sem, index) => (
+        {semesterData.length > 0 ? semesterData.map((sem, index) => (
           <Link href={`/student/results/${sem.semester}`} key={sem.semester}>
             <Card
               style={{ animationDelay: `${index * 100}ms` }}
@@ -106,7 +149,13 @@ export default function StudentDashboardPage() {
               </CardContent>
             </Card>
           </Link>
-        ))}
+        )) : (
+             <Card className="md:col-span-2 lg:col-span-3 xl:col-span-4">
+                <CardContent className="p-10 text-center text-muted-foreground">
+                    <p>No results found for this student.</p>
+                </CardContent>
+            </Card>
+        )}
       </div>
     </div>
   );

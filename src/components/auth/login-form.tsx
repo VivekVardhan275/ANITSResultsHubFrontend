@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { getStudentResults } from "@/services/api";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -87,45 +88,61 @@ export function LoginForm() {
 
   const onSubmit = async (values: any) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // This is placeholder logic. In a real app, you would handle authentication here.
-    toast({
-      title: "Login Successful",
-      description: `Welcome! Redirecting to your dashboard...`,
-    });
-
-    // Clear previous user data
-    localStorage.clear();
-    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-
-    switch (role) {
-      case "student":
-        localStorage.setItem("studentRollNo", values.rollNo);
-        localStorage.setItem("studentEmail", values.email);
-        localStorage.setItem("studentName", "BOTTA HARSHA VARDHAN");
-        localStorage.setItem("userRole", "student");
-        router.push("/student/dashboard");
-        break;
-      case "faculty":
-        localStorage.setItem("facultyUsername", values.username);
-        localStorage.setItem("facultyEmail", values.email);
-        localStorage.setItem("userRole", "faculty");
-        router.push("/faculty/dashboard");
-        break;
-      case "admin":
-        localStorage.setItem("adminUsername", values.username);
-        localStorage.setItem("adminEmail", values.email);
-        localStorage.setItem("userRole", "admin");
-        router.push("/admin/dashboard");
-        break;
-    }
     
-    // In a real app, you might not want to setLoading(false) on success if you are redirecting away.
-    // But if there's an error, you would:
-    // setIsLoading(false);
+    try {
+        // This is placeholder logic. In a real app, you would handle authentication here.
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        // Clear previous user data
+        localStorage.clear();
+        document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+        switch (role) {
+          case "student":
+            const studentData = await getStudentResults(values.rollNo);
+            localStorage.setItem("studentData", JSON.stringify(studentData));
+            localStorage.setItem("studentRollNo", studentData.rollNo);
+            localStorage.setItem("studentName", studentData.name);
+            localStorage.setItem("studentSection", studentData.section);
+            localStorage.setItem("studentDepartment", studentData.department);
+            localStorage.setItem("studentEmail", values.email); // The API doesn't return email, so we use the one from the form
+            localStorage.setItem("userRole", "student");
+            
+            toast({
+              title: "Login Successful",
+              description: `Welcome, ${studentData.name}! Redirecting...`,
+            });
+            router.push("/student/dashboard");
+            break;
+          case "faculty":
+            localStorage.setItem("facultyUsername", values.username);
+            localStorage.setItem("facultyEmail", values.email);
+            localStorage.setItem("userRole", "faculty");
+            toast({
+              title: "Login Successful",
+              description: `Welcome! Redirecting to your dashboard...`,
+            });
+            router.push("/faculty/dashboard");
+            break;
+          case "admin":
+            localStorage.setItem("adminUsername", values.username);
+            localStorage.setItem("adminEmail", values.email);
+            localStorage.setItem("userRole", "admin");
+             toast({
+              title: "Login Successful",
+              description: `Welcome! Redirecting to your dashboard...`,
+            });
+            router.push("/admin/dashboard");
+            break;
+        }
+    } catch (error: any) {
+        toast({
+            title: "Login Failed",
+            description: error.message || "An unexpected error occurred. Please try again.",
+            variant: "destructive"
+        });
+        setIsLoading(false);
+    }
   };
 
   if (!isClient) {
