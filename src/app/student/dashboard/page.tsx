@@ -12,6 +12,8 @@ import Link from "next/link";
 import { ArrowRight, CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState, useMemo } from "react";
+import { getStudentResults } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface SemesterResult {
   sgpa: string;
@@ -38,14 +40,33 @@ const checkHasFGrade = (result: SemesterResult | null): boolean => {
 export default function StudentDashboardPage() {
   const [studentData, setStudentData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const storedData = localStorage.getItem("studentData");
-    if (storedData) {
-      setStudentData(JSON.parse(storedData));
-    }
-    setIsLoading(false);
-  }, []);
+    const fetchStudentData = async () => {
+      const rollNo = localStorage.getItem("studentRollNo");
+      const department = localStorage.getItem("studentDepartment");
+
+      if (rollNo && department) {
+        try {
+          const data = await getStudentResults(rollNo, department);
+          setStudentData(data);
+          localStorage.setItem("studentData", JSON.stringify(data));
+          localStorage.setItem("studentName", data.name);
+          localStorage.setItem("studentSection", data.section);
+        } catch (error: any) {
+          toast({
+            title: "Failed to Fetch Data",
+            description: error.message || "Could not load student results. Please try again later.",
+            variant: "destructive",
+          });
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchStudentData();
+  }, [toast]);
 
   const semesterData = useMemo(() => {
     if (!studentData?.results) return [];

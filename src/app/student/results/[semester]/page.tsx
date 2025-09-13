@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { formatSubjectName } from "@/services/api";
 
 
-const nonSubjectKeys = ["rollno", "sgpa", "cgpa", "section"];
+const nonSubjectKeys = ["rollno", "sgpa", "cgpa", "section", "status"];
 
 const checkHasFGrade = (result: any | null): boolean => {
     if (!result) return false;

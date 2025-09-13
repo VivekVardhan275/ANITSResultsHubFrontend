@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { getStudentResults } from "@/services/api";
 import {
   Select,
   SelectContent,
@@ -110,18 +109,14 @@ export function LoginForm() {
 
         switch (role) {
           case "student":
-            const studentData = await getStudentResults(values.rollNo, values.department);
-            localStorage.setItem("studentData", JSON.stringify(studentData));
-            localStorage.setItem("studentRollNo", studentData.rollNo);
-            localStorage.setItem("studentName", studentData.name);
-            localStorage.setItem("studentSection", studentData.section);
-            localStorage.setItem("studentDepartment", studentData.department);
-            localStorage.setItem("studentEmail", values.email); // The API doesn't return email, so we use the one from the form
+            localStorage.setItem("studentRollNo", values.rollNo);
+            localStorage.setItem("studentDepartment", values.department);
+            localStorage.setItem("studentEmail", values.email); 
             localStorage.setItem("userRole", "student");
             
             toast({
               title: "Login Successful",
-              description: `Welcome, ${studentData.name}! Redirecting...`,
+              description: `Welcome! Redirecting...`,
             });
             router.push("/student/dashboard");
             break;
