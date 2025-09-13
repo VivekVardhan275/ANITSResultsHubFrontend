@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
 import axios from "axios";
+import { cn } from "@/lib/utils";
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
@@ -246,7 +247,14 @@ export default function AdminDashboardPage() {
                     <TableCell>{student.section}</TableCell>
                     <TableCell>{student.sgpa}</TableCell>
                     <TableCell>
-                      <Badge variant={student.status === "fail" ? "destructive" : "secondary"}>
+                      <Badge
+                        className={cn(
+                          "text-white",
+                          student.status === "fail"
+                            ? "bg-gradient-to-r from-red-500 to-rose-500"
+                            : "bg-gradient-to-r from-green-500 to-emerald-500"
+                        )}
+                      >
                         {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
                       </Badge>
                     </TableCell>
