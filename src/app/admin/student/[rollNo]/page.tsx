@@ -26,13 +26,35 @@ import { getStudentDetails } from "@/services/api";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
+const knownSubjects: { [key: string]: string } = {
+    datastructures: 'Data Structures',
+    theoryofcomputation: 'Theory of Computation',
+    computernetworks: 'Computer Networks',
+    operatingsystems: 'Operating Systems',
+    probabilityandstatist: 'Probability and Statistics',
+    javaprogrammingpracti: 'Java Programming Practice',
+    datastructureslab: 'Data Structures Lab',
+    logicalreasoning: 'Logical Reasoning',
+    financialliteracy: 'Financial Literacy',
+    // Add more known subjects as needed
+};
+
 const formatSubjectName = (subjectKey: string): string => {
-  return subjectKey
-    .replace(/_grad$/, "")
-    .replace(/_/g, " ")
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    const cleanKey = subjectKey.replace(/_grad$/, "").replace(/_/g, '').toLowerCase();
+    
+    // Find a known subject
+    const knownKey = Object.keys(knownSubjects).find(k => cleanKey.startsWith(k));
+    if (knownKey) {
+        return knownSubjects[knownKey];
+    }
+    
+    // Fallback for unknown subjects
+    return subjectKey
+        .replace(/_grad$/, "")
+        .replace(/_/g, " ")
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 };
 
 function StudentDetailsContent() {
