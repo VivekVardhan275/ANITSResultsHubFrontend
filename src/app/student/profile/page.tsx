@@ -13,12 +13,15 @@ import { useEffect, useState } from "react";
 export default function StudentProfilePage() {
     const [rollNo, setRollNo] = useState("");
     const [email, setEmail] = useState("");
+    const [studentName, setStudentName] = useState("");
 
     useEffect(() => {
         const storedRollNo = localStorage.getItem("studentRollNo");
         const storedEmail = localStorage.getItem("studentEmail");
+        const storedName = localStorage.getItem("studentName");
         if (storedRollNo) setRollNo(storedRollNo);
         if (storedEmail) setEmail(storedEmail);
+        if(storedName) setStudentName(storedName);
     }, []);
 
     return (
@@ -34,7 +37,7 @@ export default function StudentProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
-                        <h2 className="text-2xl font-semibold">{rollNo || "Student Name"}</h2>
+                        <h2 className="text-2xl font-semibold">{studentName || "Student Name"}</h2>
                         <p className="text-muted-foreground">{rollNo || "321126510001"}</p>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

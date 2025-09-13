@@ -97,19 +97,15 @@ export function LoginForm() {
     });
 
     // Clear previous user data
-    localStorage.removeItem("studentRollNo");
-    localStorage.removeItem("studentEmail");
-    localStorage.removeItem("facultyUsername");
-    localStorage.removeItem("facultyEmail");
-    localStorage.removeItem("adminUsername");
-    localStorage.removeItem("adminEmail");
-    localStorage.removeItem("userRole");
+    localStorage.clear();
+    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
 
     switch (role) {
       case "student":
         localStorage.setItem("studentRollNo", values.rollNo);
         localStorage.setItem("studentEmail", values.email);
+        localStorage.setItem("studentName", "BOTTA HARSHA VARDHAN");
         localStorage.setItem("userRole", "student");
         router.push("/student/dashboard");
         break;
