@@ -16,11 +16,19 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { DEPARTMENTS } from "@/lib/constants";
 
 type Role = "student" | "faculty";
 
@@ -40,6 +48,7 @@ const baseRegisterSchema = z
 const studentRegisterSchema = baseRegisterSchema.extend({
   rollNo: z.string().min(1, "Roll No is required"),
   email: z.string().email("Invalid email address"),
+  department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
@@ -73,6 +82,7 @@ export function RegisterForm() {
       username: "",
       password: "",
       confirmPassword: "",
+      department: "--",
     },
   });
 
@@ -83,6 +93,7 @@ export function RegisterForm() {
       username: "",
       password: "",
       confirmPassword: "",
+      department: "--"
     });
     form.trigger();
   }, [role, form]);
@@ -120,19 +131,44 @@ export function RegisterForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {role === "student" ? (
-             <FormField
-              control={form.control}
-              name="rollNo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Roll No</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your Roll No" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             <>
+                <FormField
+                control={form.control}
+                name="rollNo"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Roll No</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Enter your Roll No" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
+                        {DEPARTMENTS.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           ) : (
             <FormField
               control={form.control}
