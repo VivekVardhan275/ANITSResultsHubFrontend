@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDepartment} onValuechange={handleDepartmentChange}>
+                <Select value={selectedDepartment} onValueChange={handleDepartmentChange}>
                     <SelectTrigger id="department-select" className="w-[180px]">
                         <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
