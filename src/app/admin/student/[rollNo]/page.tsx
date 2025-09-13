@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -26,9 +26,17 @@ import { getStudentDetails } from "@/services/api";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
+const formatSubjectName = (subjectKey: string): string => {
+  return subjectKey
+    .replace(/_grad$/, '')
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 function StudentDetailsContent() {
   const params = useParams();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rollNo = params.rollNo as string;
   const department = searchParams.get("department");
@@ -93,6 +101,8 @@ function StudentDetailsContent() {
     );
   }
 
+  const { results: semesterResults } = studentData;
+
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-4">
@@ -113,7 +123,7 @@ function StudentDetailsContent() {
              <Card>
                 <CardHeader>
                     <CardTitle>{studentData.name}</CardTitle>
-                    <CardDescription>{studentData.roll_no}</CardDescription>
+                    <CardDescription>{studentData.rollNo}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
@@ -137,42 +147,50 @@ function StudentDetailsContent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                   {studentData.semesters && Object.keys(studentData.semesters).length > 0 ? (
+                   {semesterResults && Object.keys(semesterResults).length > 0 ? (
                       <Accordion type="single" collapsible className="w-full">
-                        {Object.entries(studentData.semesters).map(([semester, details]: [string, any]) => (
+                        {Object.entries(semesterResults).map(([semester, details]: [string, any]) => (
                             <AccordionItem value={semester} key={semester}>
-                                <AccordionTrigger>
+                                <AccordionTrigger disabled={!details}>
                                     <div className="flex justify-between w-full pr-4">
                                         <span className="font-medium">Semester {semester}</span>
-                                        <div className="flex gap-4 items-center">
-                                            <span className="text-sm">SGPA: {details.sgpa}</span>
-                                            <Badge variant={details.status.toLowerCase() === "fail" ? "destructive" : "secondary"}>
-                                                {details.status}
-                                            </Badge>
-                                        </div>
+                                        {details ? (
+                                            <div className="flex gap-4 items-center">
+                                                <span className="text-sm">SGPA: {details.sgpa}</span>
+                                                <span className="text-sm">CGPA: {details.cgpa}</span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-sm text-muted-foreground">Results not available</span>
+                                        )}
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Subject Code</TableHead>
-                                                <TableHead>Subject Name</TableHead>
-                                                <TableHead className="text-right">Grade</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {details.subjects.map((subject: any) => (
-                                                <TableRow key={subject.subject_code}>
-                                                    <TableCell>{subject.subject_code}</TableCell>
-                                                    <TableCell>{subject.subject_name}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Badge variant={subject.grade === "F" ? "destructive" : "default"}>{subject.grade}</Badge>
-                                                    </TableCell>
+                                    {details ? (
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Subject</TableHead>
+                                                    <TableHead className="text-right">Grade</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {Object.keys(details)
+                                                    .filter(key => key.endsWith('_grad'))
+                                                    .map((key) => (
+                                                    <TableRow key={key}>
+                                                        <TableCell>{formatSubjectName(key)}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Badge variant={details[key] === "F" ? "destructive" : "default"}>
+                                                                {details[key]}
+                                                            </Badge>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    ) : (
+                                      <p className="p-4 text-center text-muted-foreground">Results are not available for this semester.</p>  
+                                    )}
                                 </AccordionContent>
                             </AccordionItem>
                         ))}
