@@ -229,7 +229,7 @@ export default function AdminDashboardPage() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
+                <TableRow key="loading">
                   <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                     <Loader2 className="mx-auto h-8 w-8 animate-spin" />
                   </TableCell>
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
+                <TableRow key="no-results">
                     <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                         {selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' 
                          ? "Please select admission year, semester, and department to see results."
