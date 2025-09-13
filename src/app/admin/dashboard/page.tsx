@@ -100,7 +100,7 @@ export default function AdminDashboardPage() {
     
     if (searchTerm) {
         return resultsToDisplay.filter(student =>
-            student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
+            student.roll_no.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }
     
@@ -238,11 +238,11 @@ export default function AdminDashboardPage() {
               ) : displayedResults.length > 0 ? (
                 displayedResults.map((student) => (
                   <TableRow 
-                    key={student.rollNo} 
+                    key={student.roll_no} 
                     className="cursor-pointer" 
-                    onClick={() => handleRowClick(student.rollNo)}
+                    onClick={() => handleRowClick(student.roll_no)}
                   >
-                    <TableCell className="font-medium">{student.rollNo}</TableCell>
+                    <TableCell className="font-medium">{student.roll_no}</TableCell>
                     <TableCell>{student.name}</TableCell>
                     <TableCell>{student.section}</TableCell>
                     <TableCell>{student.sgpa}</TableCell>
