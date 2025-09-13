@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
   }, []);
 
   const displayedResults = useMemo(() => {
-    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' || selectedSection === '--') {
         return [];
     }
 
@@ -87,9 +87,7 @@ export default function AdminDashboardPage() {
     
     let resultsToDisplay;
 
-    if (selectedSection === "--") {
-       resultsToDisplay = [];
-    } else if (selectedSection === "All") {
+    if (selectedSection === "All") {
         resultsToDisplay = Object.keys(semesterResults)
             .filter(key => key.startsWith(selectedDepartment))
             .flatMap(key => {
@@ -97,8 +95,13 @@ export default function AdminDashboardPage() {
                 return semesterResults[key].map(student => ({ ...student, section }));
             });
     } else {
-        const sectionKey = `${selectedDepartment}-${selectedSection}`;
-        resultsToDisplay = (semesterResults[sectionKey] || []).map(student => ({ ...student, section: selectedSection }));
+        const sectionSuffix = `-${selectedSection}`;
+        resultsToDisplay = Object.keys(semesterResults)
+            .filter(key => key.startsWith(selectedDepartment) && key.endsWith(sectionSuffix))
+            .flatMap(key => {
+                const section = key.split('-')[1];
+                return semesterResults[key].map(student => ({ ...student, section }));
+            });
     }
 
     if (searchTerm) {
