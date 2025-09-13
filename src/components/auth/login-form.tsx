@@ -40,7 +40,7 @@ const studentLoginSchema = z.object({
 });
 
 const facultyLoginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z.string().min(1, "Full Name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
@@ -239,10 +239,10 @@ export function LoginForm() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your username"
+                        placeholder="Enter your full name"
                         {...field}
                       />
                     </FormControl>
