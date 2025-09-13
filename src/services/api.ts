@@ -159,3 +159,19 @@ export const loginStudent = async (data: { roll: string; email: string; password
         throw new Error(error.message || 'An unknown error occurred during login.');
     }
 };
+
+export const loginAdmin = async (data: { username: string; email: string; password: string; }) => {
+    try {
+        const response = await axios.post(`${backendUrl}/api/login/admin`, data);
+        if (response.data.success) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || 'Admin login failed.');
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred during login.');
+    }
+};

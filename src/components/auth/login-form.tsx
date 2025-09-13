@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
-import { loginStudent } from "@/services/api";
+import { loginStudent, loginAdmin } from "@/services/api";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -138,7 +138,11 @@ export function LoginForm() {
             router.push("/faculty/dashboard");
             break;
           case "admin":
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            await loginAdmin({
+                username: values.username,
+                email: values.email,
+                password: values.password,
+            });
             localStorage.setItem("adminUsername", values.username);
             localStorage.setItem("adminEmail", values.email);
             localStorage.setItem("userRole", "admin");
