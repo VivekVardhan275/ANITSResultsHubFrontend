@@ -92,10 +92,13 @@ export default function AdminDashboardPage() {
     } else if (selectedSection === "All") {
         resultsToDisplay = Object.keys(semesterResults)
             .filter(key => key.startsWith(selectedDepartment))
-            .flatMap(key => semesterResults[key]);
+            .flatMap(key => {
+                const section = key.split('-')[1];
+                return semesterResults[key].map(student => ({ ...student, section }));
+            });
     } else {
         const sectionKey = `${selectedDepartment}-${selectedSection}`;
-        resultsToDisplay = semesterResults[sectionKey] || [];
+        resultsToDisplay = (semesterResults[sectionKey] || []).map(student => ({ ...student, section: selectedSection }));
     }
 
     if (searchTerm) {
@@ -223,6 +226,7 @@ export default function AdminDashboardPage() {
               <TableRow>
                 <TableHead>Roll No</TableHead>
                 <TableHead>Student Name</TableHead>
+                <TableHead>Section</TableHead>
                 <TableHead>SGPA</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -237,6 +241,7 @@ export default function AdminDashboardPage() {
                   >
                     <TableCell className="font-medium">{student.rollNo}</TableCell>
                     <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.section}</TableCell>
                     <TableCell>{student.sgpa}</TableCell>
                     <TableCell>
                       <Badge variant={student.status === "fail" ? "destructive" : "secondary"}>
@@ -247,7 +252,7 @@ export default function AdminDashboardPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                         No results found for the selected criteria.
                     </TableCell>
                 </TableRow>
@@ -259,9 +264,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
