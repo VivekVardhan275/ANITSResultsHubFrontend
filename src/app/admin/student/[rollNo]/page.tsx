@@ -29,10 +29,10 @@ import { cn } from "@/lib/utils";
 const formatSubjectName = (subjectKey: string): string => {
   return subjectKey
     .replace(/_grad$/, '')
-    .replace(/_/g, ' ')
+    .replace(/_/g, '')
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join('');
 };
 
 function StudentDetailsContent() {
