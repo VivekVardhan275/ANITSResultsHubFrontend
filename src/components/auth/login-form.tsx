@@ -36,6 +36,7 @@ const studentLoginSchema = z.object({
   rollNo: z.string().min(1, "Roll No is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
 });
 
 const facultyLoginSchema = z.object({
@@ -79,7 +80,8 @@ export function LoginForm() {
       rollNo: "",
       username: "",
       email: "",
-      password: ""
+      password: "",
+      department: "--",
     },
   });
 
@@ -90,7 +92,8 @@ export function LoginForm() {
       rollNo: "",
       username: "",
       email: "",
-      password: ""
+      password: "",
+      department: "--",
     });
   };
 
@@ -107,7 +110,7 @@ export function LoginForm() {
 
         switch (role) {
           case "student":
-            const studentData = await getStudentResults(values.rollNo);
+            const studentData = await getStudentResults(values.rollNo, values.department);
             localStorage.setItem("studentData", JSON.stringify(studentData));
             localStorage.setItem("studentRollNo", studentData.rollNo);
             localStorage.setItem("studentName", studentData.name);
@@ -186,6 +189,29 @@ export function LoginForm() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
+                        {DEPARTMENTS.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

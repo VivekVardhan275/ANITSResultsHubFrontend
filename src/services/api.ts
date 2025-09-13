@@ -31,10 +31,13 @@ export const formatSubjectName = (subjectKey: string): string => {
         .join(' ');
 };
 
-export const getStudentResults = async (rollNo: string): Promise<any> => {
+export const getStudentResults = async (rollNo: string, branch: string): Promise<any> => {
     try {
         const response = await axios.get(`${backendUrl}/api/student/get-results`, {
-            params: { roll_no: rollNo }
+            params: { 
+                roll_no: rollNo,
+                branch: branch,
+            }
         });
         if (response.status === 200) {
             return response.data;
