@@ -56,8 +56,11 @@ export default function AdminDashboardPage() {
             semester: selectedSemester,
             branch: selectedDepartment,
           });
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
-          const response = await fetch(`${backendUrl}/api/admin/student/get-students?${params}`);
+          // Using a mock API for now as the backend URL is not configured.
+          // Replace with your actual backend URL when it's ready.
+          const backendUrl = "https://run.mocky.io/v3/93a7d434-2d5a-4dd5-8167-17382a5feb8f";
+          const response = await fetch(`${backendUrl}?${params}`);
+          
           if (response.ok) {
             const data = await response.json();
             setAllResults(data);
@@ -91,7 +94,7 @@ export default function AdminDashboardPage() {
     
     if (selectedSection !== "All") {
         resultsToDisplay = allResults.filter(student => 
-            student.section === selectedSection
+            student.section.endsWith(selectedSection)
         );
     }
     
@@ -127,7 +130,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-slide-in-from-bottom">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Student Results</h1>
