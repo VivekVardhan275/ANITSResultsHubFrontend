@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uploadStudentDetailsFile } from "@/services/api";
 
 const years = ["A21", "A22", "A23", "A24"];
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
@@ -68,24 +69,32 @@ export function StudentDetailsUploadForm() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    // Simulate API call for file upload
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    toast({
-      title: "Upload Successful!",
-      description: `Student details for admission year ${values.year} (${values.department}) have been uploaded.`,
-    });
-    
-    form.reset({
-      year: '--',
-      department: '--',
-      studentDetailsFile: undefined,
-    });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    try {
+      const file = values.studentDetailsFile[0];
+      await uploadStudentDetailsFile(file, values.year, values.department);
+      
+      toast({
+        title: "Upload Successful!",
+        description: `Student details for admission year ${values.year} (${values.department}) have been uploaded.`,
+      });
+      
+      form.reset({
+        year: '--',
+        department: '--',
+        studentDetailsFile: undefined,
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleFileAreaClick = () => {

@@ -81,3 +81,30 @@ export const uploadResultsFile = async (file: File, batch: string, semester: str
         throw new Error(error.message || 'An unknown error occurred during file upload.');
     }
 };
+
+
+export const uploadStudentDetailsFile = async (file: File, batch: string, branch: string): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('batch', batch);
+    formData.append('branch', branch);
+
+    try {
+        const response = await axios.post(`${backendUrl}/api/admin/upload-student`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || `File upload failed. Status: ${response.status}`);
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred during the file upload. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred during file upload.');
+    }
+};
