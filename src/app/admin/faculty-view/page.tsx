@@ -36,7 +36,7 @@ const facultySubjectsData = [
     facultyName: "Dr. Anand Kumar",
     department: "CSE",
     section: "A",
-    className: "2-1 CSE-A",
+    className: "CSE-A",
     totalStudents: 60,
     studentsPassed: 52,
   },
@@ -48,7 +48,7 @@ const facultySubjectsData = [
     facultyName: "Dr. Anand Kumar",
     department: "IT",
     section: "A",
-    className: "2-1 IT-A",
+    className: "IT-A",
     totalStudents: 55,
     studentsPassed: 48,
   },
@@ -60,7 +60,7 @@ const facultySubjectsData = [
     facultyName: "Dr. Sunita Sharma",
     department: "CSE",
     section: "A",
-    className: "3-2 CSE-A",
+    className: "CSE-A",
     totalStudents: 62,
     studentsPassed: 58,
   },
@@ -72,7 +72,7 @@ const facultySubjectsData = [
     facultyName: "Prof. Rajesh Singh",
     department: "CSE",
     section: "A",
-    className: "3-2 CSE-A",
+    className: "CSE-A",
     totalStudents: 62,
     studentsPassed: 60,
   },
@@ -84,7 +84,7 @@ const facultySubjectsData = [
     facultyName: "Prof. Rajesh Singh",
     department: "IT",
     section: "B",
-    className: "3-2 IT-B",
+    className: "IT-B",
     totalStudents: 58,
     studentsPassed: 50,
   },
@@ -96,7 +96,7 @@ const facultySubjectsData = [
     facultyName: "Dr. Priya Mehta",
     department: "ECE",
     section: "C",
-    className: "1-1 ECE-C",
+    className: "ECE-C",
     totalStudents: 70,
     studentsPassed: 65,
   },
@@ -108,7 +108,7 @@ const facultySubjectsData = [
     facultyName: "Dr. Sunita Sharma",
     department: "IT",
     section: "A",
-    className: "2-1 IT-A",
+    className: "IT-A",
     totalStudents: 58,
     studentsPassed: 55,
   },
@@ -255,13 +255,14 @@ export default function AdminFacultyViewPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Subject</TableHead>
+                        <TableHead>Semester</TableHead>
                         <TableHead>Class</TableHead>
                         <TableHead>Passed / Total</TableHead>
                         <TableHead className="w-[120px]">Pass %</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {faculty.subjects.map((subject) => {
+                      {faculty.subjects.map((subject: any) => {
                         const passPercentage =
                           (subject.studentsPassed / subject.totalStudents) * 100;
                         return (
@@ -269,6 +270,7 @@ export default function AdminFacultyViewPage() {
                             <TableCell className="font-medium">
                               {subject.subjectName} ({subject.subjectCode})
                             </TableCell>
+                            <TableCell>{subject.semester}</TableCell>
                             <TableCell>{subject.className}</TableCell>
                             <TableCell>
                               {subject.studentsPassed} / {subject.totalStudents}
