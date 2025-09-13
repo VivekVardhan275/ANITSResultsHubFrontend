@@ -50,15 +50,16 @@ export default function AdminDashboardPage() {
     const fetchResults = async () => {
       if (selectedYear !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
         setIsLoading(true);
-        setAllResults([]);
+        setAllResults([]); // Clear previous results
         try {
-          const params = {
+          const params = new URLSearchParams({
             batch: selectedYear,
             semester: selectedSemester,
             branch: selectedDepartment,
-          };
+          }).toString();
+          
           const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
-          const response = await axios.get(`${backendUrl}/api/admin/student/get-students`, { params });
+          const response = await axios.get(`${backendUrl}/api/admin/student/get-students?${params}`);
           
           if (response.status === 200) {
             setAllResults(response.data);
@@ -128,7 +129,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in-up">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Student Results</h1>
