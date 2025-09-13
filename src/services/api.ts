@@ -19,7 +19,7 @@ const knownSubjects: { [key: string]: string } = {
 };
 
 export const formatSubjectName = (subjectKey: string): string => {
-    const cleanedKey = subjectKey.toLowerCase().replace(/_grad$/, '');
+    const cleanedKey = subjectKey.toLowerCase().replace(/_/g, '');
     
     if (knownSubjects[cleanedKey]) {
         return knownSubjects[cleanedKey];
@@ -28,7 +28,6 @@ export const formatSubjectName = (subjectKey: string): string => {
     // Fallback for unknown subjects
     return cleanedKey
         .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
-        .replace(/_/g, ' ') // Replace underscores with spaces
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
