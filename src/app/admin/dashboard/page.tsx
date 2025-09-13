@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
             View student academic performance by filtering options.
           </p>
         </div>
-        <div className="flex items-end justify-center gap-2 flex-wrap">
+        <div className="flex justify-center items-center gap-6 flex-wrap">
             <div className="grid gap-2">
                 <Label htmlFor="year-select">Admission Year</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
