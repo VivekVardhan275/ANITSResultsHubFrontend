@@ -29,6 +29,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { DEPARTMENTS } from "@/lib/constants";
+import { signupStudent } from "@/services/api";
 
 type Role = "student" | "faculty";
 
@@ -101,16 +102,45 @@ export function RegisterForm() {
 
   const onSubmit = async (values: z.infer<typeof studentRegisterSchema | typeof staffRegisterSchema>) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    toast({
-      title: "Registration Successful",
-      description: "Your account has been created. Please log in.",
-    });
+    if (role === 'student') {
+        const studentValues = values as z.infer<typeof studentRegisterSchema>;
+        try {
+            await signupStudent({
+                email: studentValues.email,
+                roll: studentValues.rollNo,
+                password: studentValues.password,
+                department: studentValues.department,
+            });
 
-    router.push("/login");
-    // setIsLoading(false);
+            toast({
+                title: "Registration Successful",
+                description: "Your account has been created. Please log in.",
+            });
+
+            router.push("/login");
+
+        } catch (error: any) {
+            toast({
+                title: "Registration Failed",
+                description: error.message || "An unexpected error occurred.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    } else {
+        // Simulate API call for faculty
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        toast({
+        title: "Registration Successful",
+        description: "Your account has been created. Please log in.",
+        });
+
+        router.push("/login");
+        setIsLoading(false);
+    }
   };
   
 

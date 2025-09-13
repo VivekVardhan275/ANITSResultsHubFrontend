@@ -127,3 +127,19 @@ export const uploadStudentDetailsFile = async (file: File, batch: string, branch
         throw new Error(error.message || 'An unknown error occurred during file upload.');
     }
 };
+
+export const signupStudent = async (data: { email: string; roll: string; password: string; department: string; }) => {
+    try {
+        const response = await axios.post(`${backendUrl}/api/signup/student`, data);
+        if (response.data.success) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || 'Student registration failed.');
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred during registration.');
+    }
+};
