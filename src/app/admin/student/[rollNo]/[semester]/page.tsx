@@ -23,37 +23,30 @@ import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { getSemesterResults } from "@/services/api";
 
-// Mock data structure for semester results
-const allResultsData: Record<string, Record<string, { sgpa: string; cgpa: string; status: string; results: any[] }>> = {
-  "321126510001": {
-      "1-1": { sgpa: "8.5", cgpa: "8.5", status: "pass", results: [ { subjectCode: "MA111", subjectName: "Calculus", grade: "A" }, ] },
-      "1-2": { sgpa: "8.8", cgpa: "8.65", status: "pass", results: [ { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A" }, ] },
-      "2-1": { sgpa: "8.9", cgpa: "8.73", status: "pass", results: [ { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+" }, ] },
-  },
-  "321126510003": {
-      "2-1": { sgpa: "6.8", cgpa: "7.4", status: "fail", results: [ { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F" }, ] },
-  }
-};
-
-export default function AdminStudentSemesterPage({ params: { rollNo, semester } }: { params: { rollNo: string, semester: string } }) {
+export default function AdminStudentSemesterPage({ params }: { params: { rollNo: string, semester: string } }) {
+  const { rollNo, semester } = params;
   const [semesterData, setSemesterData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching data for the specific roll number and semester
     const fetchSemesterData = async () => {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-      const studentSemesters = allResultsData[rollNo];
-      if (studentSemesters && studentSemesters[semester]) {
-          setSemesterData(studentSemesters[semester]);
-      } else {
-          setSemesterData(null);
+      try {
+        const data = await getSemesterResults(rollNo, semester);
+        setSemesterData(data);
+      } catch (error) {
+        console.error("Failed to fetch semester results:", error);
+        setSemesterData(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
+    };
+    
+    if (rollNo && semester) {
+        fetchSemesterData();
     }
-    fetchSemesterData();
   }, [rollNo, semester]);
 
   if (isLoading) {
@@ -92,9 +85,9 @@ export default function AdminStudentSemesterPage({ params: { rollNo, semester } 
                 <CardTitle>SGPA</CardTitle>
                 <CardDescription className={cn(
                    "font-bold text-xl",
-                   semesterData.status === "pass" && "text-green-600 dark:text-green-400",
-                   semesterData.status === "fail" && "text-red-600 dark:text-red-400",
-                   semesterData.status === "pending" && "text-primary"
+                   semesterData.status.toLowerCase() === "passed" && "text-green-600 dark:text-green-400",
+                   semesterData.status.toLowerCase() === "failed" && "text-red-600 dark:text-red-400",
+                   semesterData.status.toLowerCase() === "pending" && "text-primary"
                 )}>{semesterData.sgpa}</CardDescription>
              </div>
              <div>
@@ -105,9 +98,9 @@ export default function AdminStudentSemesterPage({ params: { rollNo, semester } 
                 <CardTitle>Status</CardTitle>
                 <CardDescription className={cn(
                    "font-bold text-xl",
-                   semesterData.status === "pass" && "text-green-600 dark:text-green-400",
-                   semesterData.status === "fail" && "text-red-600 dark:text-red-400",
-                   semesterData.status === "pending" && "text-primary"
+                   semesterData.status.toLowerCase() === "passed" && "text-green-600 dark:text-green-400",
+                   semesterData.status.toLowerCase() === "failed" && "text-red-600 dark:text-red-400",
+                   semesterData.status.toLowerCase() === "pending" && "text-primary"
                 )}>{semesterData.status.charAt(0).toUpperCase() + semesterData.status.slice(1)}</CardDescription>
              </div>
           </div>

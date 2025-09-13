@@ -23,41 +23,7 @@ import { ArrowLeft } from "lucide-react";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-
-
-// Mock data - replace with API call
-const allStudentsData: Record<string, { name: string; department: string; section: string; semesters: any[] }> = {
-    "321126510001": {
-        name: "GANDI MANIKANTA",
-        department: "Computer Science & Engineering",
-        section: "A",
-        semesters: [
-            { semester: "1-1", sgpa: "8.5", status: "pass" },
-            { semester: "1-2", sgpa: "8.8", status: "pass" },
-            { semester: "2-1", sgpa: "8.9", status: "pass" },
-        ]
-    },
-    "321126510002": {
-        name: "IMMANUVEL",
-        department: "Computer Science & Engineering",
-        section: "A",
-        semesters: [
-            { semester: "1-1", sgpa: "8.2", status: "pass" },
-            { semester: "1-2", sgpa: "8.1", status: "pass" },
-            { semester: "2-1", sgpa: "7.5", status: "pass" },
-        ]
-    },
-    "321126510003": {
-        name: "ADARI MAHESWARI",
-        department: "Computer Science & Engineering",
-        section: "A",
-        semesters: [
-            { semester: "1-1", sgpa: "7.9", status: "pass" },
-            { semester: "1-2", sgpa: "7.5", status: "pass" },
-            { semester: "2-1", sgpa: "6.8", status: "fail" },
-        ]
-    },
-};
+import { getStudentDetails } from "@/services/api";
 
 export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
   const { rollNo } = params;
@@ -66,21 +32,21 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, you would fetch this data from an API
-    // For now, we'll simulate a fetch from our mock data
     const fetchStudentData = async () => {
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-        const data = allStudentsData[rollNo];
-        if (data) {
+        try {
+            const data = await getStudentDetails(rollNo);
             setStudentData(data);
-        } else {
-            // If you want to handle not found, you can set studentData to null
+        } catch (error) {
+            console.error("Failed to fetch student details:", error);
             setStudentData(null);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
-    fetchStudentData();
+    if (rollNo) {
+        fetchStudentData();
+    }
   }, [rollNo]);
 
   if (isLoading) {
@@ -170,7 +136,7 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
                         <TableCell className="font-medium">{sem.semester}</TableCell>
                         <TableCell>{sem.sgpa}</TableCell>
                         <TableCell>
-                            <Badge variant={sem.status === "fail" ? "destructive" : "secondary"}>
+                            <Badge variant={sem.status.toLowerCase() === "fail" ? "destructive" : "secondary"}>
                                 {sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
                             </Badge>
                         </TableCell>
