@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
+import axios from "axios";
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
@@ -51,19 +52,18 @@ export default function AdminDashboardPage() {
         setIsLoading(true);
         setAllResults([]);
         try {
-          const params = new URLSearchParams({
+          const params = {
             batch: selectedYear,
             semester: selectedSemester,
             branch: selectedDepartment,
-          });
+          };
           // Using a mock API for now as the backend URL is not configured.
           // Replace with your actual backend URL when it's ready.
           const backendUrl = "https://run.mocky.io/v3/93a7d434-2d5a-4dd5-8167-17382a5feb8f";
-          const response = await fetch(`${backendUrl}?${params}`);
+          const response = await axios.get(backendUrl, { params });
           
-          if (response.ok) {
-            const data = await response.json();
-            setAllResults(data);
+          if (response.status === 200) {
+            setAllResults(response.data);
           } else {
              setAllResults([]);
           }
