@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -20,71 +20,73 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, ArrowRight } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle } from "lucide-react";
 import Link from 'next/link';
+import { getStudentDetails } from "@/services/api";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
-// Dummy data for a single student, to be replaced with API call
-const dummyStudentDetails = {
-    name: "ADARI MAHESWARI",
-    rollNo: "A23126552001",
-    department: "Computer Science & Engineering (AI & ML)",
-    section: "CSM A",
-    semesters: [
-      { semester: "1-1", sgpa: "8.5", status: "pass", cgpa: "8.5" },
-      { semester: "1-2", sgpa: "8.8", status: "pass", cgpa: "8.65" },
-      { semester: "2-1", sgpa: "7.2", status: "fail", cgpa: "8.1" },
-      { semester: "2-2", sgpa: "9.0", status: "pass", cgpa: "8.35" },
-    ]
-};
-
-export default function AdminStudentDetailsPage() {
+function StudentDetailsContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const rollNo = params.rollNo as string;
+  const department = searchParams.get("department");
 
   const [studentData, setStudentData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate fetching data for the student
     const fetchData = async () => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-      
-      // In a real app, you would fetch data based on the rollNo
-      // For now, we'll check if the rollNo matches our dummy data
-      if (rollNo === dummyStudentDetails.rollNo) {
-          setStudentData(dummyStudentDetails);
+      if (rollNo && department) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const data = await getStudentDetails(rollNo, department);
+          setStudentData(data);
+        } catch (err: any) {
+          setError(err.message || "Failed to fetch student details.");
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
       } else {
-        // If not, create a new dummy object with the passed rollNo
-        setStudentData({
-            ...dummyStudentDetails,
-            rollNo: rollNo,
-            name: `Student ${rollNo}`
-        });
+          setError("Roll number or department is missing.");
+          setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    if (rollNo) {
-      fetchData();
-    }
-  }, [rollNo]);
+    fetchData();
+  }, [rollNo, department]);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full min-h-[50vh]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <AlertTriangle className="mx-auto h-12 w-12 text-destructive" />
+        <h2 className="mt-4 text-2xl font-bold text-destructive">Error</h2>
+        <p className="mt-2 text-muted-foreground">{error}</p>
+        <Button asChild className="mt-6">
+            <Link href="/admin/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
+        </Button>
       </div>
     );
   }
 
   if (!studentData) {
     return (
-      <div className="text-center">
+      <div className="text-center py-10">
         <h2 className="text-2xl font-bold">Student Not Found</h2>
         <p className="text-muted-foreground">The student with roll number {rollNo} could not be found.</p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-6">
             <Link href="/admin/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
         </Button>
       </div>
@@ -110,18 +112,10 @@ export default function AdminStudentDetailsPage() {
         <div className="lg:col-span-1">
              <Card>
                 <CardHeader>
-                    <CardTitle>Student Information</CardTitle>
-                    <CardDescription>Personal and academic details.</CardDescription>
+                    <CardTitle>{studentData.name}</CardTitle>
+                    <CardDescription>{studentData.roll_no}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <h3 className="font-semibold">Student Name</h3>
-                        <p className="text-muted-foreground">{studentData.name}</p>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="font-semibold">Roll No</h3>
-                        <p className="text-muted-foreground">{studentData.rollNo}</p>
-                    </div>
                     <div className="space-y-2">
                         <h3 className="font-semibold">Department</h3>
                         <p className="text-muted-foreground">{studentData.department}</p>
@@ -139,43 +133,50 @@ export default function AdminStudentDetailsPage() {
                 <CardHeader>
                     <CardTitle>Semester Results</CardTitle>
                     <CardDescription>
-                        Summary of performance across all semesters.
+                        Summary of performance across all available semesters.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                   {studentData.semesters.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Semester</TableHead>
-                            <TableHead>SGPA</TableHead>
-                            <TableHead>CGPA</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {studentData.semesters.map((sem: any) => (
-                            <TableRow key={sem.semester}>
-                                <TableCell className="font-medium">{sem.semester}</TableCell>
-                                <TableCell>{sem.sgpa}</TableCell>
-                                <TableCell>{sem.cgpa}</TableCell>
-                                <TableCell>
-                                    <Badge variant={sem.status.toLowerCase() === "fail" ? "destructive" : "secondary"}>
-                                        {sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                     <Button variant="ghost" size="sm" asChild>
-                                        <Link href={`/admin/student/${rollNo}/${sem.semester}`}>
-                                            View <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                   {studentData.semesters && Object.keys(studentData.semesters).length > 0 ? (
+                      <Accordion type="single" collapsible className="w-full">
+                        {Object.entries(studentData.semesters).map(([semester, details]: [string, any]) => (
+                            <AccordionItem value={semester} key={semester}>
+                                <AccordionTrigger>
+                                    <div className="flex justify-between w-full pr-4">
+                                        <span className="font-medium">Semester {semester}</span>
+                                        <div className="flex gap-4 items-center">
+                                            <span className="text-sm">SGPA: {details.sgpa}</span>
+                                            <Badge variant={details.status.toLowerCase() === "fail" ? "destructive" : "secondary"}>
+                                                {details.status}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Subject Code</TableHead>
+                                                <TableHead>Subject Name</TableHead>
+                                                <TableHead className="text-right">Grade</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {details.subjects.map((subject: any) => (
+                                                <TableRow key={subject.subject_code}>
+                                                    <TableCell>{subject.subject_code}</TableCell>
+                                                    <TableCell>{subject.subject_name}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Badge variant={subject.grade === "F" ? "destructive" : "default"}>{subject.grade}</Badge>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                      </Accordion>
                    ) : (
                      <div className="text-center text-muted-foreground py-10">
                         No semester results are available for this student.
@@ -187,4 +188,17 @@ export default function AdminStudentDetailsPage() {
       </div>
     </div>
   );
+}
+
+
+export default function AdminStudentDetailsPage() {
+  return (
+    <Suspense fallback={
+        <div className="flex justify-center items-center h-full min-h-[50vh]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    }>
+        <StudentDetailsContent />
+    </Suspense>
+  )
 }

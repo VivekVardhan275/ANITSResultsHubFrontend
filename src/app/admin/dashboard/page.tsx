@@ -116,7 +116,7 @@ export default function AdminDashboardPage() {
 
   const handleRowClick = (student: any) => {
     setSelectedRollNo(student.rollno);
-    router.push(`/admin/student/${student.rollno}`);
+    router.push(`/admin/student/${student.rollno}?department=${selectedDepartment}`);
   }
 
   const getCardTitle = () => {
