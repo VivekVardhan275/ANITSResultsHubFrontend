@@ -144,7 +144,7 @@ export const signupStudent = async (data: { email: string; roll: string; passwor
     }
 };
 
-export const loginStudent = async (data: { roll_no: string; password: string; department: string; }) => {
+export const loginStudent = async (data: { roll: string; password: string; department: string; }) => {
     try {
         const response = await axios.post(`${backendUrl}/api/login/student`, data);
         if (response.data.success) {

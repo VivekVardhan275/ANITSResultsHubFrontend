@@ -108,7 +108,7 @@ export function LoginForm() {
         switch (role) {
           case "student":
             await loginStudent({
-                roll_no: values.rollNo,
+                roll: values.rollNo,
                 password: values.password,
                 department: values.department,
             });
