@@ -22,8 +22,10 @@ import Link from "next/link";
 import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { formatSubjectName } from "@/services/api";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 
 const nonSubjectKeys = ["rollno", "sgpa", "cgpa", "section", "status"];
@@ -46,6 +48,9 @@ export default function SemesterResultPage() {
 
   const [semesterData, setSemesterData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const storedData = localStorage.getItem("studentData");
@@ -64,6 +69,28 @@ export default function SemesterResultPage() {
     }
     setIsLoading(false);
   }, [semesterId]);
+
+  const handleDownload = async () => {
+    if (!printRef.current) return;
+    setIsDownloading(true);
+
+    const canvas = await html2canvas(printRef.current, {
+      scale: 2,
+      backgroundColor: null,
+      useCORS: true,
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
+
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`results-${semesterId}.pdf`);
+    setIsDownloading(false);
+  };
 
   if (isLoading) {
     return (
@@ -97,7 +124,7 @@ export default function SemesterResultPage() {
         </div>
       </div>
       
-      <Card>
+      <Card ref={printRef}>
         <CardHeader className="flex flex-row justify-between items-center">
           <div className="flex gap-8">
              <div>
@@ -123,8 +150,12 @@ export default function SemesterResultPage() {
                 )}>{semesterData.status.charAt(0).toUpperCase() + semesterData.status.slice(1)}</CardDescription>
              </div>
           </div>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
+          <Button variant="outline" onClick={handleDownload} disabled={isDownloading}>
+            {isDownloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
             Download PDF
           </Button>
         </CardHeader>
