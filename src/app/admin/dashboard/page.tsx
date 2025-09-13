@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
                       <Badge
                         className={cn(
                           "text-white",
-                          student.status.toLowerCase() === "pass"
+                          student.status.toLowerCase() === "passed"
                             ? "bg-gradient-to-r from-green-500 to-emerald-500"
                             : "bg-gradient-to-r from-red-500 to-rose-500"
                         )}
