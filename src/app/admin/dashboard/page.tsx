@@ -100,7 +100,7 @@ export default function AdminDashboardPage() {
     
     if (searchTerm) {
         return resultsToDisplay.filter(student =>
-            student.roll_no.toLowerCase().includes(searchTerm.toLowerCase())
+            student.rollno.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }
     
@@ -238,11 +238,11 @@ export default function AdminDashboardPage() {
               ) : displayedResults.length > 0 ? (
                 displayedResults.map((student) => (
                   <TableRow 
-                    key={student.roll_no} 
+                    key={student.rollno} 
                     className="cursor-pointer" 
-                    onClick={() => handleRowClick(student.roll_no)}
+                    onClick={() => handleRowClick(student.rollno)}
                   >
-                    <TableCell className="font-medium">{student.roll_no}</TableCell>
+                    <TableCell className="font-medium">{student.rollno}</TableCell>
                     <TableCell>{student.name}</TableCell>
                     <TableCell>{student.section}</TableCell>
                     <TableCell>{student.sgpa}</TableCell>
@@ -250,9 +250,9 @@ export default function AdminDashboardPage() {
                       <Badge
                         className={cn(
                           "text-white",
-                          student.status === "fail"
-                            ? "bg-gradient-to-r from-red-500 to-rose-500"
-                            : "bg-gradient-to-r from-green-500 to-emerald-500"
+                          student.status.toLowerCase() === "pass"
+                            ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                            : "bg-gradient-to-r from-red-500 to-rose-500"
                         )}
                       >
                         {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
