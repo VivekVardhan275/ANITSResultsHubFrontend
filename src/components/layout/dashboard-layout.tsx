@@ -86,13 +86,7 @@ export function DashboardLayout({
   }, [pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem("studentRollNo");
-    localStorage.removeItem("studentEmail");
-    localStorage.removeItem("facultyUsername");
-    localStorage.removeItem("facultyEmail");
-    localStorage.removeItem("adminUsername");
-    localStorage.removeItem("adminEmail");
-    localStorage.removeItem("userRole");
+    localStorage.clear();
     document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.push('/login');
   }
