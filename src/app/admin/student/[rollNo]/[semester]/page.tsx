@@ -20,13 +20,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, Download, Loader2 } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getSemesterResults } from "@/services/api";
 
-export default function AdminStudentSemesterPage({ params }: { params: { rollNo: string, semester: string } }) {
-  const { rollNo, semester } = params;
+export default function AdminStudentSemesterPage() {
+  const params = useParams();
+  const rollNo = params.rollNo as string;
+  const semester = params.semester as string;
   const [semesterData, setSemesterData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 

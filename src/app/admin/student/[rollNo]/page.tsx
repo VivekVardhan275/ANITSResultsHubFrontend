@@ -20,13 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getStudentDetails } from "@/services/api";
 
-export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
-  const { rollNo } = params;
+export default function AdminStudentDetailsPage() {
+  const params = useParams();
+  const rollNo = params.rollNo as string;
   const router = useRouter();
   const [studentData, setStudentData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
