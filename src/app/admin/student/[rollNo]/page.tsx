@@ -152,8 +152,8 @@ function StudentDetailsContent() {
                                         <span className="font-medium">Semester {semester}</span>
                                         {details ? (
                                             <div className="flex gap-4 items-center">
-                                                <span className="text-sm">SGPA: {details.sgpa}</span>
-                                                <span className="text-sm">CGPA: {details.cgpa}</span>
+                                                <span className="text-sm">SGPA: {details.sgpa || '--'}</span>
+                                                <span className="text-sm">CGPA: {details.cgpa || '--'}</span>
                                             </div>
                                         ) : (
                                             <span className="text-sm text-muted-foreground">Results not available</span>

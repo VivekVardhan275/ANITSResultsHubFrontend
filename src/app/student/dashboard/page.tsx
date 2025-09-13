@@ -76,13 +76,13 @@ export default function StudentDashboardPage() {
         const hasFGrade = checkHasFGrade(result);
         return {
           semester,
-          sgpa: result.sgpa || "0.00",
+          sgpa: result.sgpa || "--",
           status: hasFGrade ? "fail" : "pass",
         };
       } else {
         return {
           semester,
-          sgpa: "0.00",
+          sgpa: "--",
           status: "pending",
         };
       }

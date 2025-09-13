@@ -107,11 +107,11 @@ export default function SemesterResultPage() {
                    semesterData.status === "pass" && "text-green-600 dark:text-green-400",
                    semesterData.status === "fail" && "text-red-600 dark:text-red-400",
                    semesterData.status === "pending" && "text-primary"
-                )}>{semesterData.sgpa || '0.00'}</CardDescription>
+                )}>{semesterData.sgpa || '--'}</CardDescription>
              </div>
              <div>
                 <CardTitle>CGPA</CardTitle>
-                <CardDescription className="font-bold text-xl text-primary">{semesterData.cgpa || '0.00'}</CardDescription>
+                <CardDescription className="font-bold text-xl text-primary">{semesterData.cgpa || '--'}</CardDescription>
              </div>
              <div>
                 <CardTitle>Status</CardTitle>
