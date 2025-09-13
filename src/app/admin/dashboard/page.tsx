@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -28,17 +27,30 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["CSE", "IT", "ECE", "CSM"];
 const sections = ["A", "B", "C", "D"];
 
+const dummyStudentDetails = {
+    name: "ADARI MAHESWARI",
+    rollNo: "A23126552001",
+    department: "Computer Science & Engineering (AI & ML)",
+    section: "CSM A",
+    semesters: [
+      { semester: "1-1", sgpa: "8.5", status: "pass" },
+      { semester: "1-2", sgpa: "8.8", status: "pass" },
+      { semester: "2-1", sgpa: "7.2", status: "fail" },
+      { semester: "2-2", sgpa: "9.0", status: "pass" },
+    ]
+};
+
 export default function AdminDashboardPage() {
-  const router = useRouter();
   const [selectedYear, setSelectedYear] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
   const [selectedDepartment, setSelectedDepartment] = useState("--");
@@ -46,12 +58,13 @@ export default function AdminDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [allResults, setAllResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchResults = async () => {
       if (selectedYear !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
         setIsLoading(true);
-        setAllResults([]); // Clear previous results
+        setAllResults([]);
         try {
           const params = new URLSearchParams({
             batch: selectedYear,
@@ -110,10 +123,12 @@ export default function AdminDashboardPage() {
   const handleDepartmentChange = (dept: string) => {
     setSelectedDepartment(dept);
     setSelectedSection("--");
+    setSelectedStudent(null);
   }
 
-  const handleRowClick = (rollNo: string) => {
-    router.push(`/admin/student/${rollNo}`);
+  const handleRowClick = (student: any) => {
+    // For now, we use dummy data. Later, you can fetch real data.
+    setSelectedStudent(dummyStudentDetails); 
   }
 
   const getCardTitle = () => {
@@ -183,7 +198,7 @@ export default function AdminDashboardPage() {
             </div>
              <div className="grid gap-2">
                 <Label htmlFor="section-select">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection} disabled={!allResults.length}>
+                <Select value={selectedSection} onValueChange={(value) => { setSelectedSection(value); setSelectedStudent(null); }}>
                     <SelectTrigger id="section-select" className="w-[180px]">
                         <SelectValue placeholder="Select Section" />
                     </SelectTrigger>
@@ -197,83 +212,167 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>{getCardTitle()}</CardTitle>
-              <CardDescription className="mt-1">
-                A list of all students and their SGPA for the selected term.
-              </CardDescription>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search by Roll No..."
-                className="pl-9 w-full sm:w-[250px]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Roll No</TableHead>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Section</TableHead>
-                <TableHead>SGPA</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow key="loading">
-                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                    <Loader2 className="mx-auto h-8 w-8 animate-spin" />
-                  </TableCell>
-                </TableRow>
-              ) : displayedResults.length > 0 ? (
-                displayedResults.map((student) => (
-                  <TableRow 
-                    key={student.rollno} 
-                    className="cursor-pointer" 
-                    onClick={() => handleRowClick(student.rollno)}
-                  >
-                    <TableCell className="font-medium">{student.rollno}</TableCell>
-                    <TableCell>{student.name}</TableCell>
-                    <TableCell>{student.section}</TableCell>
-                    <TableCell>{student.sgpa}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={cn(
-                          "text-white",
-                          student.status.toLowerCase() === "passed"
-                            ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                            : "bg-gradient-to-r from-red-500 to-rose-500"
-                        )}
-                      >
-                        {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
-                      </Badge>
-                    </TableCell>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle>{getCardTitle()}</CardTitle>
+                  <CardDescription className="mt-1">
+                    A list of all students and their SGPA for the selected term.
+                  </CardDescription>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search by Roll No..."
+                    className="pl-9 w-full sm:w-[250px]"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Roll No</TableHead>
+                    <TableHead>Student Name</TableHead>
+                    <TableHead>Section</TableHead>
+                    <TableHead>SGPA</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow key="no-results">
-                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                        {selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' 
-                         ? "Please select admission year, semester, and department to see results."
-                         : "No results found for the selected criteria."
-                        }
-                    </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow key="loading">
+                      <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                        <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+                      </TableCell>
+                    </TableRow>
+                  ) : displayedResults.length > 0 ? (
+                    displayedResults.map((student) => (
+                      <TableRow 
+                        key={student.rollno} 
+                        className={cn(
+                            "cursor-pointer",
+                            selectedStudent?.rollNo === student.rollno && "bg-muted hover:bg-muted"
+                        )} 
+                        onClick={() => handleRowClick(student)}
+                      >
+                        <TableCell className="font-medium">{student.rollno}</TableCell>
+                        <TableCell>{student.name}</TableCell>
+                        <TableCell>{student.section}</TableCell>
+                        <TableCell>{student.sgpa}</TableCell>
+                        <TableCell>
+                          <Badge
+                            className={cn(
+                              "text-white",
+                              student.status.toLowerCase() === "passed"
+                                ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                                : "bg-gradient-to-r from-red-500 to-rose-500"
+                            )}
+                          >
+                            {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow key="no-results">
+                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                            {selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' 
+                             ? "Please select admission year, semester, and department to see results."
+                             : "No results found for the selected criteria."
+                            }
+                        </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        
+        {selectedStudent ? (
+             <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle>Student Information</CardTitle>
+                            <CardDescription>Personal and academic details.</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(null)}>
+                            <X className="h-4 w-4" />
+                            <span className="sr-only">Close</span>
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Student Name</h3>
+                            <p className="text-muted-foreground">{selectedStudent.name}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Roll No</h3>
+                            <p className="text-muted-foreground">{selectedStudent.rollNo}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="font-semibold">Department</h3>
+                            <p className="text-muted-foreground">{selectedStudent.department}</p>
+                        </div>
+                         <div className="space-y-2">
+                            <h3 className="font-semibold">Section</h3>
+                            <p className="text-muted-foreground">{selectedStudent.section}</p>
+                        </div>
+                    </div>
+                </CardContent>
+                <CardHeader className="pt-0">
+                    <CardTitle>Semester Results</CardTitle>
+                    <CardDescription>
+                        A summary of performance across all semesters.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                   {selectedStudent.semesters.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Semester</TableHead>
+                            <TableHead>SGPA</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {selectedStudent.semesters.map((sem: any) => (
+                            <TableRow key={sem.semester}>
+                                <TableCell className="font-medium">{sem.semester}</TableCell>
+                                <TableCell>{sem.sgpa}</TableCell>
+                                <TableCell>
+                                    <Badge variant={sem.status.toLowerCase() === "fail" ? "destructive" : "secondary"}>
+                                        {sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
+                                    </Badge>
+                                </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                   ) : (
+                     <div className="text-center text-muted-foreground py-10">
+                        No results are available for this student.
+                    </div>
+                   )}
+                </CardContent>
+            </Card>
+        ) : (
+            <Card className="flex items-center justify-center">
+                <CardContent className="p-10 text-center text-muted-foreground">
+                    <p>Select a student to view their details here.</p>
+                </CardContent>
+            </Card>
+        )}
+      </div>
     </div>
   );
 }
