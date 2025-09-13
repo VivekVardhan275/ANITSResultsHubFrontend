@@ -36,8 +36,7 @@ const allResultsData: Record<string, Record<string, { sgpa: string; cgpa: string
   }
 };
 
-export default function AdminStudentSemesterPage({ params }: { params: { rollNo: string, semester: string } }) {
-  const { rollNo, semester } = params;
+export default function AdminStudentSemesterPage({ params: { rollNo, semester } }: { params: { rollNo: string, semester: string } }) {
   const [semesterData, setSemesterData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
