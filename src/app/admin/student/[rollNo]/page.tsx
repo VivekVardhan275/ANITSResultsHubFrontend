@@ -34,6 +34,7 @@ const knownSubjects: { [key: string]: string } = {
     probabilityandstatist: 'Probability and Statistics',
     javaprogrammingpracti: 'Java Programming Practice',
     datastructureslab: 'Data Structures Lab',
+    computernetwo: 'Computer Networks',
     logicalreasoning: 'Logical Reasoning',
     financialliteracy: 'Financial Literacy',
     // Add more known subjects as needed
