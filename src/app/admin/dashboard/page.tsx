@@ -52,15 +52,13 @@ export default function AdminDashboardPage() {
         setIsLoading(true);
         setAllResults([]);
         try {
-          const params = new URLSearchParams({
+          const params = {
             batch: selectedYear,
             semester: selectedSemester,
             branch: selectedDepartment,
-          });
-          // Using a mock API for now as the backend URL is not configured.
-          // Replace with your actual backend URL when it's ready.
-          const backendUrl = `https://run.mocky.io/v3/93a7d434-2d5a-4dd5-8167-17382a5feb8f?${params.toString()}`;
-          const response = await axios.get(backendUrl);
+          };
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          const response = await axios.get(`${backendUrl}/api/admin/student/get-students`, { params });
           
           if (response.status === 200) {
             setAllResults(response.data);
@@ -169,7 +167,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDepartment} onValueChange={handleDepartmentChange}>
+                <Select value={selectedDepartment} onValuechange={handleDepartmentChange}>
                     <SelectTrigger id="department-select" className="w-[180px]">
                         <SelectValue placeholder="Select Department" />
                     </SelectTrigger>
