@@ -134,8 +134,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
+      <div className="space-y-6">
+        <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight">Student Results</h1>
           <p className="text-muted-foreground">
             View student academic performance by filtering options.
