@@ -1,4 +1,6 @@
 
+"use client";
+
 import {
   Card,
   CardContent,
@@ -17,49 +19,51 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
-const allResultsData: Record<string, { sgpa: string; cgpa: string; status: string; results: any[] }> = {
-  "1-1": {
-    sgpa: "8.5",
-    cgpa: "8.5",
-    status: "pass",
-    results: [
-      { subjectCode: "MA111", subjectName: "Calculus", grade: "A" },
-      { subjectCode: "PH111", subjectName: "Physics", grade: "B+" },
-      { subjectCode: "CS111", subjectName: "Intro to Programming", grade: "A" },
-      { subjectCode: "EE111", subjectName: "Basic Electrical Engg.", grade: "B" },
-    ]
+// Mock data structure for semester results
+const allResultsData: Record<string, Record<string, { sgpa: string; cgpa: string; status: string; results: any[] }>> = {
+  "321126510001": {
+      "1-1": { sgpa: "8.5", cgpa: "8.5", status: "pass", results: [ { subjectCode: "MA111", subjectName: "Calculus", grade: "A" }, ] },
+      "1-2": { sgpa: "8.8", cgpa: "8.65", status: "pass", results: [ { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A" }, ] },
+      "2-1": { sgpa: "8.9", cgpa: "8.73", status: "pass", results: [ { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+" }, ] },
   },
-  "1-2": {
-    sgpa: "8.8",
-    cgpa: "8.65",
-    status: "pass",
-    results: [
-        { subjectCode: "MA121", subjectName: "Differential Equations", grade: "A" },
-        { subjectCode: "CY121", subjectName: "Chemistry", grade: "A" },
-        { subjectCode: "CS121", subjectName: "Data Structures", grade: "B+" },
-        { subjectCode: "HU121", subjectName: "English Communication", grade: "A" },
-    ]
-  },
-  "2-1": {
-    sgpa: "7.2",
-    cgpa: "8.1",
-    status: "fail",
-    results: [
-        { subjectCode: "CS211", subjectName: "Data Structures", grade: "A+" },
-        { subjectCode: "EC211", subjectName: "Digital Logic", grade: "A" },
-        { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F" },
-        { subjectCode: "CS212", subjectName: "Object Oriented Programming", grade: "B+" },
-    ]
-  },
+  "321126510003": {
+      "2-1": { sgpa: "6.8", cgpa: "7.4", status: "fail", results: [ { subjectCode: "MA211", subjectName: "Linear Algebra", grade: "F" }, ] },
+  }
 };
 
 export default function AdminStudentSemesterPage({ params }: { params: { rollNo: string, semester: string } }) {
   const { rollNo, semester } = params;
-  const semesterData = allResultsData[semester];
+  const [semesterData, setSemesterData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate fetching data for the specific roll number and semester
+    const fetchSemesterData = async () => {
+      setIsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+      const studentSemesters = allResultsData[rollNo];
+      if (studentSemesters && studentSemesters[semester]) {
+          setSemesterData(studentSemesters[semester]);
+      } else {
+          setSemesterData(null);
+      }
+      setIsLoading(false);
+    }
+    fetchSemesterData();
+  }, [rollNo, semester]);
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+    )
+  }
 
   if (!semesterData) {
     notFound();
@@ -124,7 +128,7 @@ export default function AdminStudentSemesterPage({ params }: { params: { rollNo:
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {semesterData.results.map((result) => (
+                  {semesterData.results.map((result: any) => (
                     <TableRow key={result.subjectCode}>
                       <TableCell>{result.subjectCode}</TableCell>
                       <TableCell className="font-medium">{result.subjectName}</TableCell>

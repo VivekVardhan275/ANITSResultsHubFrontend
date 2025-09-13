@@ -21,11 +21,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 
+// Mock data - replace with API call
 const allStudentsData: Record<string, { name: string; department: string; section: string; semesters: any[] }> = {
     "321126510001": {
-        name: "Student A",
+        name: "GANDI MANIKANTA",
         department: "Computer Science & Engineering",
         section: "A",
         semesters: [
@@ -35,7 +38,7 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
         ]
     },
     "321126510002": {
-        name: "Student B",
+        name: "IMMANUVEL",
         department: "Computer Science & Engineering",
         section: "A",
         semesters: [
@@ -45,7 +48,7 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
         ]
     },
     "321126510003": {
-        name: "Student C",
+        name: "ADARI MAHESWARI",
         department: "Computer Science & Engineering",
         section: "A",
         semesters: [
@@ -59,7 +62,34 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
 export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
   const { rollNo } = params;
   const router = useRouter();
-  const studentData = allStudentsData[rollNo];
+  const [studentData, setStudentData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // In a real app, you would fetch this data from an API
+    // For now, we'll simulate a fetch from our mock data
+    const fetchStudentData = async () => {
+        setIsLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+        const data = allStudentsData[rollNo];
+        if (data) {
+            setStudentData(data);
+        } else {
+            // If you want to handle not found, you can set studentData to null
+            setStudentData(null);
+        }
+        setIsLoading(false);
+    }
+    fetchStudentData();
+  }, [rollNo]);
+
+  if (isLoading) {
+      return (
+          <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+      )
+  }
 
   if (!studentData) {
     notFound();
@@ -131,7 +161,7 @@ export default function AdminStudentDetailsPage({ params }: { params: { rollNo: 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentData.semesters.map((sem) => (
+                  {studentData.semesters.map((sem: any) => (
                     <TableRow 
                         key={sem.semester} 
                         className="cursor-pointer" 
