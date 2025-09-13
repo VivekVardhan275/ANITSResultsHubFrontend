@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
-import { getStudentResults } from "@/services/api";
+import { loginStudent } from "@/services/api";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -100,20 +100,24 @@ export function LoginForm() {
 
   const onSubmit = async (values: any) => {
     setIsLoading(true);
-    
+
+    localStorage.clear();
+    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
     try {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        localStorage.clear();
-        document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
         switch (role) {
           case "student":
+            await loginStudent({
+                roll_no: values.rollNo,
+                password: values.password,
+                department: values.department,
+            });
+
             localStorage.setItem("studentRollNo", values.rollNo);
             localStorage.setItem("studentDepartment", values.department);
-            localStorage.setItem("studentEmail", values.email); 
+            localStorage.setItem("studentEmail", values.email);
             localStorage.setItem("userRole", "student");
-            
+
             toast({
               title: "Login Successful",
               description: `Welcome! Redirecting...`,
@@ -121,6 +125,7 @@ export function LoginForm() {
             router.push("/student/dashboard");
             break;
           case "faculty":
+             await new Promise((resolve) => setTimeout(resolve, 1500));
             localStorage.setItem("facultyUsername", values.username);
             localStorage.setItem("facultyEmail", values.email);
             localStorage.setItem("facultyDepartment", values.department);
@@ -132,6 +137,7 @@ export function LoginForm() {
             router.push("/faculty/dashboard");
             break;
           case "admin":
+            await new Promise((resolve) => setTimeout(resolve, 1500));
             localStorage.setItem("adminUsername", values.username);
             localStorage.setItem("adminEmail", values.email);
             localStorage.setItem("userRole", "admin");
@@ -148,6 +154,7 @@ export function LoginForm() {
             description: error.message || "An unexpected error occurred. Please try again.",
             variant: "destructive"
         });
+    } finally {
         setIsLoading(false);
     }
   };
