@@ -59,7 +59,8 @@ const allStudentsData: Record<string, { name: string; department: string; sectio
     },
 };
 
-export default function AdminStudentDetailsPage({ params: { rollNo } }: { params: { rollNo: string } }) {
+export default function AdminStudentDetailsPage({ params }: { params: { rollNo: string } }) {
+  const { rollNo } = params;
   const router = useRouter();
   const [studentData, setStudentData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
