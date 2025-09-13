@@ -177,9 +177,9 @@ export function RegisterForm() {
                 name="username"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                        <Input placeholder="Enter your username" {...field} />
+                        <Input placeholder="Enter your full name" {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -260,7 +260,7 @@ export function RegisterForm() {
             )}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading || !form.formstate.isValid}>
+          <Button type="submit" className="w-full" disabled={isLoading || !form.formState.isValid}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
