@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -28,38 +28,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-
-const resultsData = {
-  "A21": {
-    "2-1": {
-      "CSE-A": [
-        { rollNo: "321126510001", name: "Student A", sgpa: "8.9", status: "pass" },
-        { rollNo: "321126510002", name: "Student B", sgpa: "7.5", status: "pass" },
-        { rollNo: "321126510003", name: "Student C", sgpa: "6.8", status: "fail" },
-      ],
-      "CSE-B": [
-        { rollNo: "321126510061", name: "Student X", sgpa: "9.2", status: "pass" },
-        { rollNo: "321126510062", name: "Student Y", sgpa: "8.1", status: "pass" },
-      ],
-      "IT-A": [
-        { rollNo: "321126520001", name: "Student P", sgpa: "8.5", status: "pass" },
-      ]
-    },
-    "3-2": {
-      "CSE-A": [
-        { rollNo: "320126510001", name: "Student D", sgpa: "9.1", status: "pass" },
-      ]
-    }
-  },
-  "A22": {
-    "1-1": {
-      "IT-A": [
-        { rollNo: "422126510001", name: "Student E", sgpa: "8.0", status: "pass" },
-      ]
-    }
-  }
-};
+import { Loader2, Search } from "lucide-react";
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
@@ -73,37 +42,59 @@ export default function AdminDashboardPage() {
   const [selectedDepartment, setSelectedDepartment] = useState("--");
   const [selectedSection, setSelectedSection] = useState("--");
   const [searchTerm, setSearchTerm] = useState("");
+  const [allResults, setAllResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (selectedYear !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
+        setIsLoading(true);
+        setAllResults([]);
+        try {
+          const params = new URLSearchParams({
+            batch: selectedYear,
+            semester: selectedSemester,
+            branch: selectedDepartment,
+          });
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          const response = await fetch(`${backendUrl}/api/admin/student/get-students?${params}`);
+          if (response.ok) {
+            const data = await response.json();
+            setAllResults(data);
+          } else {
+             setAllResults([]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch student results:", error);
+          setAllResults([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setAllResults([]);
+      }
+    };
+
+    fetchResults();
+  }, [selectedYear, selectedSemester, selectedDepartment]);
 
   const sectionsForDepartment = useMemo(() => {
     return ["--", "All", ...sections];
   }, []);
 
   const displayedResults = useMemo(() => {
-    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' || selectedSection === '--') {
+    if (selectedSection === '--') {
         return [];
     }
 
-    const semesterResults = resultsData[selectedYear]?.[selectedSemester] || {};
+    let resultsToDisplay = allResults;
     
-    let resultsToDisplay;
-
-    if (selectedSection === "All") {
-        resultsToDisplay = Object.keys(semesterResults)
-            .filter(key => key.startsWith(selectedDepartment))
-            .flatMap(key => {
-                const section = key.split('-')[1];
-                return semesterResults[key].map(student => ({ ...student, section }));
-            });
-    } else {
-        const sectionSuffix = `-${selectedSection}`;
-        resultsToDisplay = Object.keys(semesterResults)
-            .filter(key => key.startsWith(selectedDepartment) && key.endsWith(sectionSuffix))
-            .flatMap(key => {
-                const section = key.split('-')[1];
-                return semesterResults[key].map(student => ({ ...student, section }));
-            });
+    if (selectedSection !== "All") {
+        resultsToDisplay = allResults.filter(student => 
+            student.section === selectedSection
+        );
     }
-
+    
     if (searchTerm) {
         return resultsToDisplay.filter(student =>
             student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
@@ -111,7 +102,7 @@ export default function AdminDashboardPage() {
     }
     
     return resultsToDisplay;
-  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection, searchTerm]);
+  }, [allResults, selectedSection, searchTerm]);
   
   const handleDepartmentChange = (dept: string) => {
     setSelectedDepartment(dept);
@@ -189,7 +180,7 @@ export default function AdminDashboardPage() {
             </div>
              <div className="grid gap-2">
                 <Label htmlFor="section-select">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                <Select value={selectedSection} onValueChange={setSelectedSection} disabled={!allResults.length}>
                     <SelectTrigger id="section-select" className="w-[180px]">
                         <SelectValue placeholder="Select Section" />
                     </SelectTrigger>
@@ -235,7 +226,13 @@ export default function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {displayedResults.length > 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+                  </TableCell>
+                </TableRow>
+              ) : displayedResults.length > 0 ? (
                 displayedResults.map((student) => (
                   <TableRow 
                     key={student.rollNo} 
@@ -256,7 +253,10 @@ export default function AdminDashboardPage() {
               ) : (
                 <TableRow>
                     <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                        No results found for the selected criteria.
+                        {selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' 
+                         ? "Please select admission year, semester, and department to see results."
+                         : "No results found for the selected criteria."
+                        }
                     </TableCell>
                 </TableRow>
               )}
