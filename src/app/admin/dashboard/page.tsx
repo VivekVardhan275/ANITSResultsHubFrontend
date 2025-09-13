@@ -52,15 +52,15 @@ export default function AdminDashboardPage() {
         setIsLoading(true);
         setAllResults([]);
         try {
-          const params = {
+          const params = new URLSearchParams({
             batch: selectedYear,
             semester: selectedSemester,
             branch: selectedDepartment,
-          };
+          });
           // Using a mock API for now as the backend URL is not configured.
           // Replace with your actual backend URL when it's ready.
-          const backendUrl = "https://run.mocky.io/v3/93a7d434-2d5a-4dd5-8167-17382a5feb8f";
-          const response = await axios.get(backendUrl, { params });
+          const backendUrl = `https://run.mocky.io/v3/93a7d434-2d5a-4dd5-8167-17382a5feb8f?${params.toString()}`;
+          const response = await axios.get(backendUrl);
           
           if (response.status === 200) {
             setAllResults(response.data);
