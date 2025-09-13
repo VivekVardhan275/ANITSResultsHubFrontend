@@ -128,7 +128,7 @@ export default function AdminFacultyViewPage() {
   const [selectedSection, setSelectedSection] = useState("--");
 
   const filteredData = useMemo(() => {
-    if (selectedYear === '--' && selectedSemester === '--' && selectedDepartment === '--' && selectedSection === '--') {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' || selectedSection === '--') {
       return [];
     }
     return facultySubjectsData.filter(
@@ -299,7 +299,7 @@ export default function AdminFacultyViewPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select filters to view faculty performance data.</p>
+                <p>Please select all filters to view faculty performance data.</p>
             </CardContent>
         </Card>
       )}
