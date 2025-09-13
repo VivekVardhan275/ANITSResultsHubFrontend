@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
+import { getStudentResults } from "@/services/api";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -42,6 +43,7 @@ const facultyLoginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
 });
 
 const adminLoginSchema = z.object({
@@ -100,10 +102,8 @@ export function LoginForm() {
     setIsLoading(true);
     
     try {
-        // This is placeholder logic. In a real app, you would handle authentication here.
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        // Clear previous user data
         localStorage.clear();
         document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
@@ -123,6 +123,7 @@ export function LoginForm() {
           case "faculty":
             localStorage.setItem("facultyUsername", values.username);
             localStorage.setItem("facultyEmail", values.email);
+            localStorage.setItem("facultyDepartment", values.department);
             localStorage.setItem("userRole", "faculty");
             toast({
               title: "Login Successful",
@@ -245,6 +246,29 @@ export function LoginForm() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
+                        {DEPARTMENTS.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
