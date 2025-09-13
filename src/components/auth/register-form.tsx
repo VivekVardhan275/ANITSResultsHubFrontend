@@ -22,7 +22,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-type Role = "student" | "faculty" | "admin";
+type Role = "student" | "faculty";
 
 const passwordSchema = z
   .string()
@@ -112,10 +112,9 @@ export function RegisterForm() {
             setRole(newRole);
         }}
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="student">Student</TabsTrigger>
           <TabsTrigger value="faculty">Faculty</TabsTrigger>
-          <TabsTrigger value="admin">Admin</TabsTrigger>
         </TabsList>
       </Tabs>
       <Form {...form}>
