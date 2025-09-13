@@ -109,6 +109,7 @@ export function LoginForm() {
           case "student":
             await loginStudent({
                 roll: values.rollNo,
+                email: values.email,
                 password: values.password,
                 department: values.department,
             });
