@@ -81,13 +81,34 @@ export default function SemesterResultPage() {
     });
     
     const imgData = canvas.toDataURL('image/png');
+    
+    // A4 page dimensions in 'mm' and calculate aspect ratio
     const pdf = new jsPDF({
       orientation: 'portrait',
-      unit: 'px',
-      format: [canvas.width, canvas.height]
+      unit: 'mm',
+      format: 'a4'
     });
 
-    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const canvasAspectRatio = canvasWidth / canvasHeight;
+
+    let imgWidth = pdfWidth;
+    let imgHeight = pdfWidth / canvasAspectRatio;
+
+    // If the scaled height is greater than the PDF height, scale to fit height instead
+    if (imgHeight > pdfHeight) {
+        imgHeight = pdfHeight;
+        imgWidth = pdfHeight * canvasAspectRatio;
+    }
+    
+    // Center the image
+    const xOffset = (pdfWidth - imgWidth) / 2;
+    const yOffset = (pdfHeight - imgHeight) / 2;
+
+    pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
     pdf.save(`results-${semesterId}.pdf`);
     setIsDownloading(false);
   };
