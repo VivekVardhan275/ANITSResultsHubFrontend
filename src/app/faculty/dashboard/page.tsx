@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -26,84 +25,56 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { getFacultyPerformance } from "@/services/api";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const facultySubjectsData = [
-  {
-    year: "2023-24",
-    semester: "2-1",
-    subjectName: "Data Structures",
-    subjectCode: "CS211",
-    department: "CSE",
-    classes: [
-      {
-        className: "2-1 CSE",
-        totalStudents: 60,
-        studentsPassed: 52,
-      },
-      {
-        className: "2-1 IT",
-        totalStudents: 55,
-        studentsPassed: 48,
-      },
-    ],
-  },
-  {
-    year: "2023-24",
-    semester: "3-2",
-    subjectName: "Compiler Design",
-    subjectCode: "CS321",
-    department: "CSE",
-    classes: [
-      {
-        className: "3-2 CSE",
-        totalStudents: 62,
-        studentsPassed: 58,
-      },
-    ],
-  },
-  {
-    year: "2023-24",
-    semester: "3-2",
-    subjectName: "Web Technologies",
-    subjectCode: "CS324",
-    department: "CSE",
-    classes: [
-      {
-        className: "3-2 CSE",
-        totalStudents: 62,
-        studentsPassed: 60,
-      },
-      {
-        className: "3-2 IT",
-        totalStudents: 58,
-        studentsPassed: 50,
-      },
-    ],
-  },
-  {
-    year: "2022-23",
-    semester: "1-1",
-    subjectName: "Programming in C",
-    subjectCode: "CS111",
-    department: "ECE",
-    classes: [
-      {
-        className: "1-1 ECE",
-        totalStudents: 70,
-        studentsPassed: 65,
-      },
-    ],
-  },
-];
+const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
+const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
 
-const availableYears = ["--", "A21", "A22", "A23", "A24", "A25"];
-const availableSemesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const availableDepartments = ["--", "CSE", "CSM", "EEE", "IT"];
+const processDataForVerticalTable = (data: any[]) => {
+  if (!data || data.length === 0) {
+    return { headers: [], rows: [] };
+  }
+
+  const uniqueSections = [...new Set(data.map(d => d.section))];
+  const metrics: { [key: string]: { [section: string]: string } } = {};
+  const metricOrder: string[] = [];
+
+  // Get all possible keys from the first entry to define the row order
+  if (data[0]) {
+    for (const key in data[0]) {
+      if (key !== 'section') {
+        metricOrder.push(key);
+      }
+    }
+  }
+
+  // Populate metrics
+  metricOrder.forEach(key => {
+    metrics[key] = {};
+    data.forEach(sectionData => {
+      metrics[key][sectionData.section] = sectionData[key];
+    });
+  });
+  
+  return {
+    headers: ["Metric", ...uniqueSections],
+    rows: metricOrder.map(metric => ({
+      metric,
+      ...metrics[metric]
+    }))
+  };
+};
 
 export default function FacultyDashboardPage() {
-  const [selectedYear, setSelectedYear] = useState("--");
+  const [selectedBatch, setSelectedBatch] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
   const [selectedDepartment, setSelectedDepartment] = useState("--");
+  const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [facultyName, setFacultyName] = useState("Faculty");
 
   useEffect(() => {
@@ -113,32 +84,47 @@ export default function FacultyDashboardPage() {
     }
   }, []);
 
-  const filteredData = facultySubjectsData.filter(
-    (data) => 
-      (selectedYear === '--' || true) && 
-      (selectedSemester === '--' || data.semester === selectedSemester) &&
-      (selectedDepartment === '--' || data.department === selectedDepartment)
-  );
+  useEffect(() => {
+    const fetchPerformanceData = async () => {
+      if (selectedBatch !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
+        setIsLoading(true);
+        setError(null);
+        setPerformanceData([]);
+        try {
+          const data = await getFacultyPerformance(selectedBatch, selectedSemester, selectedDepartment);
+          setPerformanceData(data || []);
+        } catch (err: any) {
+          setError(err.message || "Failed to fetch performance data.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setPerformanceData([]);
+      }
+    };
+    fetchPerformanceData();
+  }, [selectedBatch, selectedSemester, selectedDepartment]);
+
+  const { headers, rows } = useMemo(() => processDataForVerticalTable(performanceData), [performanceData]);
 
   return (
     <div className="space-y-8 animate-slide-in-from-bottom">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Welcome, {facultyName}!</h1>
         <p className="text-muted-foreground">
-          Here's an overview of your subject performance.
+          View subject performance by applying filters.
         </p>
       </div>
 
-      <div className="flex justify-center items-center gap-4 flex-wrap">
+      <div className="flex justify-center items-center gap-6 flex-wrap">
           <div className="grid gap-2">
               <Label htmlFor="year-select">Batch</Label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <Select value={selectedBatch} onValueChange={setSelectedBatch}>
                   <SelectTrigger id="year-select" className="w-[180px]">
                       <SelectValue placeholder="Select Batch" />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="--">--</SelectItem>
-                      {availableYears.map(year => (
+                      {academicYears.map(year => (
                           <SelectItem key={year} value={year}>{year}</SelectItem>
                       ))}
                   </SelectContent>
@@ -151,22 +137,20 @@ export default function FacultyDashboardPage() {
                       <SelectValue placeholder="Select Semester" />
                   </SelectTrigger>
                   <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
-                        {availableSemesters.map(sem => (
+                        {semesters.map(sem => (
                           <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                       ))}
                   </SelectContent>
               </Select>
           </div>
-            <div className="grid gap-2">
+          <div className="grid gap-2">
               <Label htmlFor="department-select">Department</Label>
               <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
                   <SelectTrigger id="department-select" className="w-[180px]">
                       <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="--">--</SelectItem>
-                      {availableDepartments.map(dep => (
+                        {departments.map(dep => (
                           <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                       ))}
                   </SelectContent>
@@ -174,84 +158,58 @@ export default function FacultyDashboardPage() {
           </div>
       </div>
 
-      {(selectedYear !== '--' || selectedSemester !== '--' || selectedDepartment !== '--') && filteredData.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {filteredData.map((subject) => {
-            const totalStudents = subject.classes.reduce(
-              (acc, curr) => acc + curr.totalStudents,
-              0
-            );
-            const totalPassed = subject.classes.reduce(
-              (acc, curr) => acc + curr.studentsPassed,
-              0
-            );
-            const overallPassPercentage =
-              totalStudents > 0 ? (totalPassed / totalStudents) * 100 : 0;
-
-            return (
-              <Card key={subject.subjectCode}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>{subject.subjectName}</CardTitle>
-                      <CardDescription>{subject.subjectCode}</CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Overall Pass Rate
-                      </p>
-                      <p className="text-2xl font-bold text-primary">
-                        {overallPassPercentage.toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Passed / Total</TableHead>
-                        <TableHead className="w-[120px]">Pass %</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {subject.classes.map((cls) => {
-                        const passPercentage =
-                          (cls.studentsPassed / cls.totalStudents) * 100;
-                        return (
-                          <TableRow key={cls.className}>
-                            <TableCell className="font-medium">
-                              {cls.className}
-                            </TableCell>
-                            <TableCell>
-                              {cls.studentsPassed} / {cls.totalStudents}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Progress
-                                  value={passPercentage}
-                                  className="h-2 flex-1"
-                                />
-                                <span className="text-xs text-muted-foreground w-10 text-right">
-                                  {passPercentage.toFixed(0)}%
-                                </span>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            );
-          })}
+       {isLoading ? (
+        <div className="flex justify-center items-center h-40">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
+      ) : error ? (
+        <Card>
+            <CardContent className="p-10 text-center text-destructive flex flex-col items-center gap-4">
+                <AlertTriangle className="h-8 w-8" />
+                <p className="font-semibold">Error loading data</p>
+                <p className="text-sm text-muted-foreground">{error}</p>
+            </CardContent>
+        </Card>
+      ) : performanceData.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Section Data</CardTitle>
+            <CardDescription>A breakdown of performance metrics for each section.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    {headers.map(header => (
+                        <TableHead key={header}>{header}</TableHead>
+                    ))}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {rows.map((row, index) => (
+                    <TableRow
+                        key={row.metric}
+                        className={cn(
+                        (index >= rows.length - 2) &&
+                            "font-bold bg-yellow-200 dark:bg-yellow-800/30 hover:bg-yellow-300 dark:hover:bg-yellow-800/40"
+                        )}
+                    >
+                        <TableCell className="font-medium">{row.metric}</TableCell>
+                        {headers.slice(1).map(sectionName => (
+                            <TableCell key={sectionName}>{row[sectionName] ?? '--'}</TableCell>
+                        ))}
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select a batch, semester, or department to see performance data.</p>
+                <p>Please select batch, semester, and department to view faculty performance data.</p>
             </CardContent>
         </Card>
       )}
