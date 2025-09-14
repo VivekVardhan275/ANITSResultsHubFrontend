@@ -38,7 +38,7 @@ const processDataForVerticalTable = (data: any[] | null) => {
     return { headers: [], rows: [] };
   }
 
-  const uniqueSections = [...new Set(data.map(d => d.section))];
+  const uniqueSections = [...new Set(data.map(d => d.section).filter(Boolean))];
   const metrics: { [key: string]: { [section: string]: string } } = {};
 
   const allKeys = new Set<string>();
@@ -61,15 +61,15 @@ const processDataForVerticalTable = (data: any[] | null) => {
     const lowerKey = key.toLowerCase();
     if (lowerKey.endsWith('_pass') || lowerKey.endsWith('_fail')) {
       const subjectName = key.replace(/_pass|_fail/i, '');
-      if (!processedSubjects.has(subjectName)) {
+      if (!processedSubjects.has(subjectName.toLowerCase())) {
         subjectMetrics.push(subjectName);
-        processedSubjects.add(subjectName);
+        processedSubjects.add(subjectName.toLowerCase());
       }
     } else {
       otherMetrics.push(key);
     }
   });
-
+  
   const formattedSubjectNames = subjectMetrics.map(s => s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
   const finalMetricOrder = [...formattedSubjectNames.sort(), ...otherMetrics.sort()];
   
@@ -79,7 +79,8 @@ const processDataForVerticalTable = (data: any[] | null) => {
 
   data.forEach(sectionData => {
     const sectionName = sectionData.section;
-    
+    if (!sectionName) return;
+
     processedSubjects.forEach(subjectKey => {
        const passKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_pass`);
        const failKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_fail`);
