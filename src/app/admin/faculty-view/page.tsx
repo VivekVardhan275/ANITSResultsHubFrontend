@@ -238,32 +238,34 @@ export default function AdminFacultyViewPage() {
                 <CardDescription>A breakdown of performance metrics for each section.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Section</TableHead>
-                             {Object.values(SUBJECT_MAP).map(subj => (
-                                <TableHead key={subj}>{subj} (Pass/Fail)</TableHead>
-                            ))}
-                            <TableHead>Total Students</TableHead>
-                            <TableHead>SGPA</TableHead>
-                            <TableHead>CGPA</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {performanceData.map(section => (
-                            <TableRow key={section.section}>
-                                <TableCell className="font-medium">{section.section}</TableCell>
-                                 {Object.keys(SUBJECT_MAP).map(subjKey => (
-                                    <TableCell key={subjKey}>{section[`${subjKey}_pass`]} / {section[`${subjKey}_fail`]}</TableCell>
-                                ))}
-                                <TableCell>{section.total_students}</TableCell>
-                                <TableCell>{section.in_1_1_sgpa}</TableCell>
-                                <TableCell>{section.till_1_1_cgpa}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                <div className="overflow-x-auto">
+                  <Table>
+                      <TableHeader>
+                          <TableRow>
+                              <TableHead>Section</TableHead>
+                               {Object.values(SUBJECT_MAP).map(subj => (
+                                  <TableHead key={subj}>{subj} (Pass/Fail)</TableHead>
+                              ))}
+                              <TableHead>Total Students</TableHead>
+                              <TableHead>SGPA</TableHead>
+                              <TableHead>CGPA</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {performanceData.map(section => (
+                              <TableRow key={section.section}>
+                                  <TableCell className="font-medium">{section.section}</TableCell>
+                                   {Object.keys(SUBJECT_MAP).map(subjKey => (
+                                      <TableCell key={subjKey}>{section[`${subjKey}_pass`]} / {section[`${subjKey}_fail`]}</TableCell>
+                                  ))}
+                                  <TableCell>{section.total_students}</TableCell>
+                                  <TableCell>{section.in_1_1_sgpa}</TableCell>
+                                  <TableCell>{section.till_1_1_cgpa}</TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
 
@@ -278,6 +280,8 @@ export default function AdminFacultyViewPage() {
     </div>
   );
 }
+
+    
 
     
 
