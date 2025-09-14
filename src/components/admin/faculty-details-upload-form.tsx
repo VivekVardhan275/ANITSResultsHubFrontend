@@ -32,14 +32,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uploadFacultyPerformanceFile } from "@/services/api";
 
-const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
-const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
-const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
+const academicYears = ["A21", "A22", "A23", "A24", "A25"];
+const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
 const fileUploadSchema = z.object({
-  department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
-  academicYear: z.string().refine(val => val !== '--', { message: "Please select an academic year." }),
+  branch: z.string().refine(val => val !== '--', { message: "Please select a branch." }),
+  batch: z.string().refine(val => val !== '--', { message: "Please select a batch." }),
   semester: z.string().refine(val => val !== '--', { message: "Please select a semester." }),
   facultyDetailsFile: z
     .any()
@@ -60,8 +61,8 @@ export function FacultyDetailsUploadForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(fileUploadSchema),
     defaultValues: {
-      department: '--',
-      academicYear: '--',
+      branch: '--',
+      batch: '--',
       semester: '--',
       facultyDetailsFile: undefined
     }
@@ -71,20 +72,33 @@ export function FacultyDetailsUploadForm() {
 
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
-    // Simulate API call for file upload
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+        const file = values.facultyDetailsFile[0];
+        await uploadFacultyPerformanceFile(file, values.batch, values.branch, values.semester);
 
-    toast({
-      title: "Upload Successful!",
-      description: `Faculty performance details for ${values.academicYear} ${values.department} (${values.semester}) have been uploaded.`,
-    });
-    
-    form.reset();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+        toast({
+            title: "Upload Successful!",
+            description: `Faculty performance details for ${values.batch} ${values.branch} (${values.semester}) have been uploaded.`,
+        });
+        
+        form.reset({
+            batch: '--',
+            branch: '--',
+            semester: '--',
+            facultyDetailsFile: undefined
+        });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    } catch (error: any) {
+        toast({
+            title: "Upload Failed",
+            description: error.message || "An unexpected error occurred during the file upload.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
   
   const handleFileAreaClick = () => {
@@ -104,7 +118,7 @@ export function FacultyDetailsUploadForm() {
       <CardHeader>
         <CardTitle>Faculty Performance Details Upload</CardTitle>
         <CardDescription>
-          Select the department, year, semester, and the faculty performance file (.xlsx).
+          Select the branch, batch, semester, and the faculty performance file (.xlsx).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -113,17 +127,18 @@ export function FacultyDetailsUploadForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                <FormField
                 control={form.control}
-                name="department"
+                name="branch"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Department</FormLabel>
+                    <FormLabel>Branch</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a department" />
+                          <SelectValue placeholder="Select a branch" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {departments.map(dep => (
                             <SelectItem key={dep} value={dep}>{dep}</SelectItem>
                         ))}
@@ -135,17 +150,18 @@ export function FacultyDetailsUploadForm() {
               />
               <FormField
                 control={form.control}
-                name="academicYear"
+                name="batch"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Academic Year</FormLabel>
+                    <FormLabel>Batch</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an academic year" />
+                          <SelectValue placeholder="Select a batch" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
                         {academicYears.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                         ))}
@@ -168,6 +184,7 @@ export function FacultyDetailsUploadForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                         <SelectItem value="--">--</SelectItem>
                         {semesters.map(sem => (
                             <SelectItem key={sem} value={sem}>{sem}</SelectItem>
                         ))}

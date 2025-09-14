@@ -174,6 +174,33 @@ export const uploadStudentDetailsFile = async (file: File, batch: string, branch
     }
 };
 
+export const uploadFacultyPerformanceFile = async (file: File, batch: string, branch: string, semester: string): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('batch', batch);
+    formData.append('branch', branch);
+    formData.append('semester', semester);
+
+    try {
+        const response = await apiClient.post(`/api/admin/upload/faculty-performance`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || `Faculty performance file upload failed. Status: ${response.status}`);
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred during the file upload. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred during file upload.');
+    }
+};
+
 export const signupStudent = async (data: { email: string; roll: string; password: string; department: string; }) => {
     try {
         const response = await apiClient.post(`/api/signup/student`, data);
