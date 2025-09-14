@@ -203,8 +203,10 @@ export const uploadFacultyPerformanceFile = async (file: File, batch: string, br
 
 export const getFacultyPerformance = async (batch: string, semester: string, branch: string): Promise<any> => {
     try {
-        const response = await apiClient.get(`/api/get-faculty/performance`, {
-            params: { batch, semester, branch }
+        const response = await apiClient.post(`/api/get-faculty/performance`, {
+            batch,
+            semester,
+            branch
         });
         if (response.status === 200) {
             return response.data;
@@ -285,5 +287,7 @@ export const loginAdmin = async (data: { username: string; email: string; passwo
 
     
 
+
+    
 
     
