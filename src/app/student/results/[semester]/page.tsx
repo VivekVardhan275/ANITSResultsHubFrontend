@@ -76,7 +76,7 @@ export default function SemesterResultPage() {
 
     const canvas = await html2canvas(printRef.current, {
       scale: 2,
-      backgroundColor: null,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#020817' : '#FFFFFF',
       useCORS: true,
     });
     
@@ -109,23 +109,33 @@ export default function SemesterResultPage() {
 
   return (
     <div className="space-y-8">
-       <div className="flex items-center gap-4">
-         <Button asChild variant="outline" size="icon">
-          <Link href="/student/dashboard">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back to Dashboard</span>
-          </Link>
-        </Button>
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight">{semesterId} Semester Results</h1>
-            <p className="text-muted-foreground">
-              Your detailed academic performance for the semester.
-            </p>
+       <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <Button asChild variant="outline" size="icon">
+                <Link href="/student/dashboard">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="sr-only">Back to Dashboard</span>
+                </Link>
+            </Button>
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">{semesterId} Semester Results</h1>
+                <p className="text-muted-foreground">
+                Your detailed academic performance for the semester.
+                </p>
+            </div>
         </div>
+        <Button variant="outline" onClick={handleDownload} disabled={isDownloading}>
+            {isDownloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Download PDF
+        </Button>
       </div>
       
-      <Card ref={printRef}>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <div ref={printRef} className="bg-card p-6 rounded-lg border">
+          <CardHeader className="flex flex-row justify-between items-center p-0 mb-6">
           <div className="flex gap-8">
              <div>
                 <CardTitle>SGPA</CardTitle>
@@ -150,16 +160,8 @@ export default function SemesterResultPage() {
                 )}>{semesterData.status.charAt(0).toUpperCase() + semesterData.status.slice(1)}</CardDescription>
              </div>
           </div>
-          <Button variant="outline" onClick={handleDownload} disabled={isDownloading}>
-            {isDownloading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
-            Download PDF
-          </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
            {results.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -187,7 +189,8 @@ export default function SemesterResultPage() {
             </div>
            )}
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }
+ 
