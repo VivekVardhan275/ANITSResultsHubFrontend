@@ -47,6 +47,7 @@ export default function SemesterResultPage() {
   const semesterId = params.semester as string;
 
   const [semesterData, setSemesterData] = useState<any>(null);
+  const [studentInfo, setStudentInfo] = useState({ name: '', rollNo: '', department: '', section: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,13 @@ export default function SemesterResultPage() {
 
   useEffect(() => {
     const storedData = localStorage.getItem("studentData");
+    const storedName = localStorage.getItem("studentName") || '';
+    const storedRollNo = localStorage.getItem("studentRollNo") || '';
+    const storedDepartment = localStorage.getItem("studentDepartment") || '';
+    const storedSection = localStorage.getItem("studentSection") || '';
+
+    setStudentInfo({ name: storedName, rollNo: storedRollNo, department: storedDepartment, section: storedSection });
+
     if (storedData) {
       const allResults = JSON.parse(storedData).results;
       const dataForSemester = allResults[semesterId];
@@ -74,15 +82,20 @@ export default function SemesterResultPage() {
     if (!printRef.current) return;
     setIsDownloading(true);
 
-    const canvas = await html2canvas(printRef.current, {
+    // Temporarily add a class to style for printing
+    const printElement = printRef.current;
+    printElement.classList.add('printing');
+
+    const canvas = await html2canvas(printElement, {
       scale: 2,
       backgroundColor: document.documentElement.classList.contains('dark') ? '#020817' : '#FFFFFF',
       useCORS: true,
     });
     
+    printElement.classList.remove('printing');
+    
     const imgData = canvas.toDataURL('image/png');
     
-    // A4 page dimensions in 'mm' and calculate aspect ratio
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -95,21 +108,19 @@ export default function SemesterResultPage() {
     const canvasHeight = canvas.height;
     const canvasAspectRatio = canvasWidth / canvasHeight;
 
-    let imgWidth = pdfWidth;
-    let imgHeight = pdfWidth / canvasAspectRatio;
+    let imgWidth = pdfWidth - 20; // with some margin
+    let imgHeight = imgWidth / canvasAspectRatio;
 
-    // If the scaled height is greater than the PDF height, scale to fit height instead
-    if (imgHeight > pdfHeight) {
-        imgHeight = pdfHeight;
-        imgWidth = pdfHeight * canvasAspectRatio;
+    if (imgHeight > pdfHeight - 20) {
+        imgHeight = pdfHeight - 20;
+        imgWidth = imgHeight * canvasAspectRatio;
     }
     
-    // Center the image
     const xOffset = (pdfWidth - imgWidth) / 2;
-    const yOffset = (pdfHeight - imgHeight) / 2;
+    const yOffset = 10; // top margin
 
     pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
-    pdf.save(`results-${semesterId}.pdf`);
+    pdf.save(`results-${studentInfo.rollNo}-${semesterId}.pdf`);
     setIsDownloading(false);
   };
 
@@ -130,9 +141,17 @@ export default function SemesterResultPage() {
 
   return (
     <div className="space-y-8">
+       <style jsx global>{`
+        .printing .non-printable {
+            display: none;
+        }
+        .printing .printable-header {
+            display: block !important;
+        }
+       `}</style>
        <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-            <Button asChild variant="outline" size="icon">
+            <Button asChild variant="outline" size="icon" className="non-printable">
                 <Link href="/student/dashboard">
                     <ArrowLeft className="h-4 w-4" />
                     <span className="sr-only">Back to Dashboard</span>
@@ -145,7 +164,7 @@ export default function SemesterResultPage() {
                 </p>
             </div>
         </div>
-        <Button variant="outline" onClick={handleDownload} disabled={isDownloading}>
+        <Button variant="outline" onClick={handleDownload} disabled={isDownloading} className="non-printable">
             {isDownloading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -156,6 +175,16 @@ export default function SemesterResultPage() {
       </div>
       
       <div ref={printRef} className="bg-card p-6 rounded-lg border">
+          <div className="printable-header hidden mb-6 border-b pb-4">
+              <h2 className="text-xl font-bold text-center">ANITS Results Summary</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 text-sm">
+                  <div><strong>Name:</strong> {studentInfo.name}</div>
+                  <div><strong>Roll No:</strong> {studentInfo.rollNo}</div>
+                  <div><strong>Department:</strong> {studentInfo.department}</div>
+                  <div><strong>Section:</strong> {studentInfo.section}</div>
+              </div>
+          </div>
+
           <CardHeader className="flex flex-row justify-between items-center p-0 mb-6">
           <div className="flex gap-8">
              <div>
