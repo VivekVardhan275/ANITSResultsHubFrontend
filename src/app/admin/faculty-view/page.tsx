@@ -27,25 +27,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { getFacultyPerformance } from "@/services/api";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from "recharts"
 
 const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
-const COLORS = ["hsl(var(--chart-1))", "hsl(var(--destructive))"];
-
-const SUBJECT_MAP: { [key: string]: string } = {
-    "la_m": "Linear Algebra & Calculus",
-    "la_m_pass": "Linear Algebra & Calculus",
-    "ce": "Communicative English",
-};
 
 export default function AdminFacultyViewPage() {
   const [selectedBatch, setSelectedBatch] = useState("--");
@@ -75,56 +60,6 @@ export default function AdminFacultyViewPage() {
     };
     fetchPerformanceData();
   }, [selectedBatch, selectedSemester, selectedDepartment]);
-
-  const chartData = useMemo(() => {
-    if (!performanceData || performanceData.length === 0) return [];
-    
-    const subjectStats: { [key: string]: { name: string, passed: number, failed: number } } = {};
-
-    performanceData.forEach(section => {
-        Object.keys(SUBJECT_MAP).forEach(subjectKey => {
-            const passKey = `${subjectKey}_pass`;
-            const failKey = `${subjectKey}_fail`;
-
-            if (section[passKey] && section[failKey]) {
-                if (!subjectStats[subjectKey]) {
-                    subjectStats[subjectKey] = { name: SUBJECT_MAP[subjectKey], passed: 0, failed: 0 };
-                }
-                subjectStats[subjectKey].passed += parseInt(section[passKey]);
-                subjectStats[subjectKey].failed += parseInt(section[failKey]);
-            }
-        });
-    });
-
-    return Object.values(subjectStats).map(stat => ({
-        name: stat.name,
-        passPercentage: stat.passed + stat.failed > 0 ? (stat.passed / (stat.passed + stat.failed)) * 100 : 0
-    }));
-
-  }, [performanceData]);
-
-  const pieChartDataBySection = useMemo(() => {
-    if (!performanceData || performanceData.length === 0) return {};
-    
-    const sectionPies: { [key: string]: any[] } = {};
-
-    performanceData.forEach(section => {
-        let totalPassed = 0;
-        let totalFailed = 0;
-        Object.keys(SUBJECT_MAP).forEach(subjectKey => {
-            totalPassed += parseInt(section[`${subjectKey}_pass`] || '0');
-            totalFailed += parseInt(section[`${subjectKey}_fail`] || '0');
-        });
-        
-        sectionPies[section.section] = [
-            { name: "Passed", value: totalPassed, color: "hsl(var(--chart-1))" },
-            { name: "Failed", value: totalFailed, color: "hsl(var(--destructive))" },
-        ];
-    });
-
-    return sectionPies;
-
-  }, [performanceData]);
 
   const tableColumns = useMemo(() => {
     if (!performanceData || performanceData.length === 0) return [];
@@ -204,48 +139,6 @@ export default function AdminFacultyViewPage() {
         </Card>
       ) : performanceData.length > 0 ? (
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Performance Summary</CardTitle>
-                    <CardDescription>Overall pass percentage by subject for the selected criteria.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={{}} className="min-h-[200px] w-full">
-                        <BarChart data={chartData} accessibilityLayer>
-                            <CartesianGrid vertical={false} />
-                            <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                            <YAxis unit="%" />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="passPercentage" fill="hsl(var(--chart-1))" radius={4} />
-                        </BarChart>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {Object.entries(pieChartDataBySection).map(([section, data]) => (
-                   <Card key={section}>
-                       <CardHeader>
-                           <CardTitle>Section {section}: Pass/Fail Ratio</CardTitle>
-                           <CardDescription>Overall student pass vs. fail distribution.</CardDescription>
-                       </CardHeader>
-                       <CardContent>
-                           <ChartContainer config={{}} className="h-[250px]">
-                               <PieChart>
-                                   <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                                   <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                                     {data.map((entry: any, index: number) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                     ))}
-                                   </Pie>
-                                   <ChartLegend content={<ChartLegendContent />} />
-                               </PieChart>
-                           </ChartContainer>
-                       </CardContent>
-                   </Card>
-                ))}
-            </div>
-
             <Card>
               <CardHeader>
                 <CardTitle>Detailed Section Data</CardTitle>
