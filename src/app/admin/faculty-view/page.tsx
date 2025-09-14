@@ -178,11 +178,11 @@ export default function AdminFacultyViewPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rows.map(row => (
+                    {rows.map((row, index) => (
                     <TableRow
                         key={row.metric}
                         className={cn(
-                        row.metric === "in_1_2_sgpa_" &&
+                        (index >= rows.length - 2) &&
                             "font-bold bg-yellow-200 dark:bg-yellow-800/30 hover:bg-yellow-300 dark:hover:bg-yellow-800/40"
                         )}
                     >
