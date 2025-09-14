@@ -40,7 +40,6 @@ const processDataForVerticalTable = (data: any[] | null) => {
 
   const uniqueSections = [...new Set(data.map(d => d.section))];
   const metrics: { [key: string]: { [section: string]: string } } = {};
-  const metricOrder: string[] = [];
 
   const allKeys = new Set<string>();
   data.forEach(sectionData => {
@@ -72,7 +71,7 @@ const processDataForVerticalTable = (data: any[] | null) => {
   });
 
   const formattedSubjectNames = subjectMetrics.map(s => s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-  const finalMetricOrder = [...formattedSubjectNames, ...otherMetrics.sort()];
+  const finalMetricOrder = [...formattedSubjectNames.sort(), ...otherMetrics.sort()];
   
   finalMetricOrder.forEach(metricName => {
     metrics[metricName] = {};
@@ -84,10 +83,20 @@ const processDataForVerticalTable = (data: any[] | null) => {
     processedSubjects.forEach(subjectKey => {
        const passKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_pass`);
        const failKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_fail`);
-       const passCount = passKey ? sectionData[passKey] : '-';
-       const failCount = failKey ? sectionData[failKey] : '-';
+       const passCount = passKey ? sectionData[passKey] : null;
+       const failCount = failKey ? sectionData[failKey] : null;
        const formattedName = subjectKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-       metrics[formattedName][sectionName] = `${passCount} / ${failCount}`;
+       
+       let displayValue = '--';
+       if (passCount !== null && failCount !== null) {
+           displayValue = `${passCount} / ${failCount}`;
+       } else if (passCount !== null) {
+           displayValue = `${passCount}`;
+       } else if (failCount !== null) {
+           displayValue = `${failCount}`;
+       }
+
+       metrics[formattedName][sectionName] = displayValue;
     });
 
     otherMetrics.forEach(metricKey => {
