@@ -122,57 +122,56 @@ export default function FacultyDashboardPage() {
 
   return (
     <div className="space-y-8 animate-slide-in-from-bottom">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {facultyName}!</h1>
-          <p className="text-muted-foreground">
-            Here's an overview of your subject performance.
-          </p>
-        </div>
-        <div className="flex items-center gap-4 flex-wrap">
-            <div className="grid gap-2">
-                <Label htmlFor="year-select">Batch</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger id="year-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Batch" />
-                    </SelectTrigger>
-                    <SelectContent>
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome, {facultyName}!</h1>
+        <p className="text-muted-foreground">
+          Here's an overview of your subject performance.
+        </p>
+      </div>
+
+      <div className="flex justify-center items-center gap-4 flex-wrap">
+          <div className="grid gap-2">
+              <Label htmlFor="year-select">Batch</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger id="year-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="--">--</SelectItem>
+                      {availableYears.map(year => (
+                          <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
+          <div className="grid gap-2">
+              <Label htmlFor="semester-select">Semester</Label>
+              <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                  <SelectTrigger id="semester-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Semester" />
+                  </SelectTrigger>
+                  <SelectContent>
                         <SelectItem value="--">--</SelectItem>
-                        {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>{year}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+                        {availableSemesters.map(sem => (
+                          <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
             <div className="grid gap-2">
-                <Label htmlFor="semester-select">Semester</Label>
-                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                    <SelectTrigger id="semester-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Semester" />
-                    </SelectTrigger>
-                    <SelectContent>
-                         <SelectItem value="--">--</SelectItem>
-                         {availableSemesters.map(sem => (
-                            <SelectItem key={sem} value={sem}>{sem}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-             <div className="grid gap-2">
-                <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                    <SelectTrigger id="department-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="--">--</SelectItem>
-                        {availableDepartments.map(dep => (
-                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
+              <Label htmlFor="department-select">Department</Label>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <SelectTrigger id="department-select" className="w-[180px]">
+                      <SelectValue placeholder="Select Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="--">--</SelectItem>
+                      {availableDepartments.map(dep => (
+                          <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
       </div>
 
       {(selectedYear !== '--' || selectedSemester !== '--' || selectedDepartment !== '--') && filteredData.length > 0 ? (
