@@ -33,7 +33,7 @@ const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
 
-const processDataForVerticalTable = (data: any[]) => {
+const processDataForVerticalTable = (data: any[] | null) => {
   if (!data || data.length === 0) {
     return { headers: [], rows: [] };
   }
@@ -42,26 +42,62 @@ const processDataForVerticalTable = (data: any[]) => {
   const metrics: { [key: string]: { [section: string]: string } } = {};
   const metricOrder: string[] = [];
 
-  // Get all possible keys from the first entry to define the row order
-  if (data[0]) {
-    for (const key in data[0]) {
+  const allKeys = new Set<string>();
+  data.forEach(sectionData => {
+    Object.keys(sectionData).forEach(key => {
       if (key !== 'section') {
-        metricOrder.push(key);
+        allKeys.add(key);
       }
-    }
-  }
-
-  // Populate metrics
-  metricOrder.forEach(key => {
-    metrics[key] = {};
-    data.forEach(sectionData => {
-      metrics[key][sectionData.section] = sectionData[key];
     });
   });
+
+  const sortedKeys = Array.from(allKeys).sort();
+
+  const subjectMetrics: string[] = [];
+  const otherMetrics: string[] = [];
+
+  const processedSubjects = new Set<string>();
+
+  sortedKeys.forEach(key => {
+    const lowerKey = key.toLowerCase();
+    if (lowerKey.endsWith('_pass') || lowerKey.endsWith('_fail')) {
+      const subjectName = key.replace(/_pass|_fail/i, '');
+      if (!processedSubjects.has(subjectName)) {
+        subjectMetrics.push(subjectName);
+        processedSubjects.add(subjectName);
+      }
+    } else {
+      otherMetrics.push(key);
+    }
+  });
+
+  const formattedSubjectNames = subjectMetrics.map(s => s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+  const finalMetricOrder = [...formattedSubjectNames, ...otherMetrics.sort()];
   
+  finalMetricOrder.forEach(metricName => {
+    metrics[metricName] = {};
+  });
+
+  data.forEach(sectionData => {
+    const sectionName = sectionData.section;
+    
+    processedSubjects.forEach(subjectKey => {
+       const passKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_pass`);
+       const failKey = Object.keys(sectionData).find(k => k.toLowerCase() === `${subjectKey.toLowerCase()}_fail`);
+       const passCount = passKey ? sectionData[passKey] : '-';
+       const failCount = failKey ? sectionData[failKey] : '-';
+       const formattedName = subjectKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+       metrics[formattedName][sectionName] = `${passCount} / ${failCount}`;
+    });
+
+    otherMetrics.forEach(metricKey => {
+       metrics[metricKey][sectionName] = sectionData[metricKey] ?? '--';
+    });
+  });
+
   return {
     headers: ["Metric", ...uniqueSections],
-    rows: metricOrder.map(metric => ({
+    rows: finalMetricOrder.map(metric => ({
       metric,
       ...metrics[metric]
     }))
@@ -72,7 +108,7 @@ export default function AdminFacultyViewPage() {
   const [selectedBatch, setSelectedBatch] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
   const [selectedDepartment, setSelectedDepartment] = useState("--");
-  const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [performanceData, setPerformanceData] = useState<any[] | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,23 +117,25 @@ export default function AdminFacultyViewPage() {
       if (selectedBatch !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
         setIsLoading(true);
         setError(null);
-        setPerformanceData([]);
+        setPerformanceData(undefined);
         try {
           const data = await getFacultyPerformance(selectedBatch, selectedSemester, selectedDepartment);
-          setPerformanceData(data || []);
+          setPerformanceData(data); // Can be null or an array
         } catch (err: any) {
           setError(err.message || "Failed to fetch performance data.");
         } finally {
           setIsLoading(false);
         }
       } else {
-        setPerformanceData([]);
+        setPerformanceData(undefined);
       }
     };
     fetchPerformanceData();
   }, [selectedBatch, selectedSemester, selectedDepartment]);
 
   const { headers, rows } = useMemo(() => processDataForVerticalTable(performanceData), [performanceData]);
+  
+  const hasFilters = selectedBatch !== '--' && selectedSemester !== '--' && selectedDepartment !== '--';
 
   return (
     <div className="space-y-8">
@@ -161,7 +199,7 @@ export default function AdminFacultyViewPage() {
                 <p className="text-sm text-muted-foreground">{error}</p>
             </CardContent>
         </Card>
-      ) : performanceData.length > 0 ? (
+      ) : performanceData && performanceData.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>Detailed Section Data</CardTitle>
@@ -170,29 +208,29 @@ export default function AdminFacultyViewPage() {
           <CardContent>
             <div className="overflow-x-auto">
                 <Table>
-                <TableHeader>
-                    <TableRow>
-                    {headers.map(header => (
-                        <TableHead key={header}>{header}</TableHead>
-                    ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {rows.map((row, index) => (
-                    <TableRow
-                        key={row.metric}
-                        className={cn(
-                        (index >= rows.length - 2) &&
-                            "font-bold bg-yellow-200 dark:bg-yellow-800/30 hover:bg-yellow-300 dark:hover:bg-yellow-800/40"
-                        )}
-                    >
-                        <TableCell className="font-medium">{row.metric}</TableCell>
-                        {headers.slice(1).map(sectionName => (
-                            <TableCell key={sectionName}>{row[sectionName] ?? '--'}</TableCell>
-                        ))}
-                    </TableRow>
-                    ))}
-                </TableBody>
+                  <TableHeader>
+                      <TableRow>
+                      {headers.map(header => (
+                          <TableHead key={header}>{header}</TableHead>
+                      ))}
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {rows.map((row, index) => (
+                      <TableRow
+                          key={row.metric}
+                           className={cn(
+                            (index >= rows.length - 2) &&
+                                "font-bold bg-yellow-200 dark:bg-yellow-800/30 hover:bg-yellow-300 dark:hover:bg-yellow-800/40"
+                            )}
+                      >
+                          <TableCell className="font-medium">{row.metric}</TableCell>
+                          {headers.slice(1).map(sectionName => (
+                              <TableCell key={sectionName}>{row[sectionName] ?? '--'}</TableCell>
+                          ))}
+                      </TableRow>
+                      ))}
+                  </TableBody>
                 </Table>
             </div>
           </CardContent>
@@ -200,7 +238,12 @@ export default function AdminFacultyViewPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select all filters to view faculty performance data.</p>
+                <p>
+                  {hasFilters && performanceData === null 
+                    ? "Data not available for the selected criteria."
+                    : "Please select all filters to view faculty performance data."
+                  }
+                </p>
             </CardContent>
         </Card>
       )}
