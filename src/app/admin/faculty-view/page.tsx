@@ -32,72 +32,37 @@ const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
 
-const formatMetricName = (metricKey: string) => {
-  return metricKey
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
 const processDataForVerticalTable = (data: any[]) => {
   if (!data || data.length === 0) {
     return { headers: [], rows: [] };
   }
 
   const sections = data.map(d => d.section);
-  const subjectMetricsMap: { [metric: string]: { [section: string]: string | number } } = {};
-  const otherMetricsMap: { [metric: string]: { [section: string]: string | number } } = {};
+  const metrics: { [key: string]: { [section: string]: string } } = {};
+  const metricOrder: string[] = [];
 
-  data.forEach(sectionData => {
-    const currentSection = sectionData.section;
-    const subjects: { [key: string]: { pass?: number; fail?: number } } = {};
-    const otherMetrics: { [key: string]: string | number } = {};
-
-    for (const [key, value] of Object.entries(sectionData)) {
-      if (key.endsWith('_pass') || key.endsWith('_fail')) {
-        const isPass = key.endsWith('_pass');
-        const subjectName = isPass ? key.slice(0, -5) : key.slice(0, -5);
-        
-        if (!subjects[subjectName]) {
-          subjects[subjectName] = {};
-        }
-
-        if (isPass) {
-          subjects[subjectName].pass = Number(value);
-        } else {
-          subjects[subjectName].fail = Number(value);
-        }
-      } else if (key !== 'section') {
-        otherMetrics[key] = String(value);
+  // Get all possible keys from the first entry to define the row order
+  if (data[0]) {
+    for (const key in data[0]) {
+      if (key !== 'section') {
+        metricOrder.push(key);
       }
     }
-    
-    for (const [subjectName, counts] of Object.entries(subjects)) {
-      const metricLabel = formatMetricName(subjectName);
-      if (!subjectMetricsMap[metricLabel]) subjectMetricsMap[metricLabel] = {};
-      const passCount = counts.pass ?? 0;
-      const failCount = counts.fail ?? 0;
-      subjectMetricsMap[metricLabel][currentSection] = `${passCount} / ${failCount}`;
-    }
+  }
 
-    for (const [metricName, value] of Object.entries(otherMetrics)) {
-       const metricLabel = formatMetricName(metricName);
-       if (!otherMetricsMap[metricLabel]) otherMetricsMap[metricLabel] = {};
-       otherMetricsMap[metricLabel][currentSection] = value;
-    }
+  // Populate metrics
+  metricOrder.forEach(key => {
+    metrics[key] = {};
+    data.forEach(sectionData => {
+      metrics[key][sectionData.section] = sectionData[key];
+    });
   });
-
-  const subjectMetricNames = Object.keys(subjectMetricsMap).sort();
-  const otherMetricNames = Object.keys(otherMetricsMap).sort();
   
-  const allMetricNames = [...subjectMetricNames, ...otherMetricNames];
-  const combinedMetricsMap = {...subjectMetricsMap, ...otherMetricsMap};
-
   return {
     headers: ["Metric", ...sections],
-    rows: allMetricNames.map(metricName => ({
-      metric: metricName,
-      ...combinedMetricsMap[metricName]
+    rows: metricOrder.map(metric => ({
+      metric,
+      ...metrics[metric]
     }))
   };
 };
