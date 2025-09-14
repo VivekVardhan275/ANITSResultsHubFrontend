@@ -32,45 +32,70 @@ const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
 
-const formatSubjectName = (subjectKey: string) => {
-  return subjectKey
+const formatMetricName = (metricKey: string) => {
+  return metricKey
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
-const processSectionData = (sectionData: any) => {
-    const processed: { [key: string]: string | number } = {};
-    const subjects: { [key: string]: { pass?: number, fail?: number } } = {};
+const processDataForVerticalTable = (data: any[]) => {
+  if (!data || data.length === 0) {
+    return { headers: [], rows: [] };
+  }
+
+  const sections = data.map(d => d.section);
+  const metricsMap: { [metric: string]: { [section: string]: string | number } } = {};
+
+  data.forEach(sectionData => {
+    const currentSection = sectionData.section;
+    const subjects: { [key: string]: { pass?: number; fail?: number } } = {};
+    const otherMetrics: { [key: string]: string | number } = {};
 
     for (const [key, value] of Object.entries(sectionData)) {
-        if (key.endsWith('_pass') || key.endsWith('_fail')) {
-            const isPass = key.endsWith('_pass');
-            const subjectName = isPass ? key.slice(0, -5) : key.slice(0, -5);
-            
-            if (!subjects[subjectName]) {
-                subjects[subjectName] = {};
-            }
-
-            if (isPass) {
-                subjects[subjectName].pass = Number(value);
-            } else {
-                subjects[subjectName].fail = Number(value);
-            }
-        } else if (key !== 'section') {
-            processed[formatSubjectName(key)] = String(value);
+      if (key.endsWith('_pass') || key.endsWith('_fail')) {
+        const isPass = key.endsWith('_pass');
+        const subjectName = isPass ? key.slice(0, -5) : key.slice(0, -5);
+        
+        if (!subjects[subjectName]) {
+          subjects[subjectName] = {};
         }
-    }
 
+        if (isPass) {
+          subjects[subjectName].pass = Number(value);
+        } else {
+          subjects[subjectName].fail = Number(value);
+        }
+      } else if (key !== 'section') {
+        otherMetrics[key] = String(value);
+      }
+    }
+    
     for (const [subjectName, counts] of Object.entries(subjects)) {
-        const passCount = counts.pass ?? 0;
-        const failCount = counts.fail ?? 0;
-        processed[formatSubjectName(subjectName)] = `${passCount} / ${failCount}`;
+      const metricLabel = formatMetricName(subjectName);
+      if (!metricsMap[metricLabel]) metricsMap[metricLabel] = {};
+      const passCount = counts.pass ?? 0;
+      const failCount = counts.fail ?? 0;
+      metricsMap[metricLabel][currentSection] = `${passCount} / ${failCount}`;
     }
 
-    return processed;
-};
+    for (const [metricName, value] of Object.entries(otherMetrics)) {
+       const metricLabel = formatMetricName(metricName);
+       if (!metricsMap[metricLabel]) metricsMap[metricLabel] = {};
+       metricsMap[metricLabel][currentSection] = value;
+    }
+  });
 
+  const allMetricNames = Object.keys(metricsMap);
+
+  return {
+    headers: ["Metric", ...sections],
+    rows: allMetricNames.map(metricName => ({
+      metric: metricName,
+      ...metricsMap[metricName]
+    }))
+  };
+};
 
 export default function AdminFacultyViewPage() {
   const [selectedBatch, setSelectedBatch] = useState("--");
@@ -100,6 +125,8 @@ export default function AdminFacultyViewPage() {
     };
     fetchPerformanceData();
   }, [selectedBatch, selectedSemester, selectedDepartment]);
+
+  const { headers, rows } = useMemo(() => processDataForVerticalTable(performanceData), [performanceData]);
 
   return (
     <div className="space-y-8">
@@ -164,37 +191,35 @@ export default function AdminFacultyViewPage() {
             </CardContent>
         </Card>
       ) : performanceData.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {performanceData.map((sectionData, index) => {
-                const processedData = processSectionData(sectionData);
-                return (
-                    <Card key={sectionData.section || index}>
-                        <CardHeader>
-                            <CardTitle>Section: {sectionData.section}</CardTitle>
-                            <CardDescription>Detailed performance metrics for this section.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Metric</TableHead>
-                                        <TableHead>Value</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {Object.entries(processedData).map(([key, value]) => (
-                                         <TableRow key={key}>
-                                            <TableCell className="font-medium">{key}</TableCell>
-                                            <TableCell>{String(value)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                );
-            })}
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Section Data</CardTitle>
+            <CardDescription>A breakdown of performance metrics for each section.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    {headers.map(header => (
+                        <TableHead key={header}>{header}</TableHead>
+                    ))}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {rows.map(row => (
+                    <TableRow key={row.metric}>
+                        <TableCell className="font-medium">{row.metric}</TableCell>
+                        {headers.slice(1).map(sectionName => (
+                            <TableCell key={sectionName}>{row[sectionName] ?? '--'}</TableCell>
+                        ))}
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
