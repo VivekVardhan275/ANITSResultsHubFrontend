@@ -93,7 +93,7 @@ const facultySubjectsData = [
 ];
 
 const availableYears = ["A21", "A22", "A23", "A24", "A25"];
-const availableSemesters = Array.from(new Set(facultySubjectsData.map(d => d.semester)));
+const availableSemesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
 export default function FacultyDashboardPage() {
   const [selectedYear, setSelectedYear] = useState("--");
