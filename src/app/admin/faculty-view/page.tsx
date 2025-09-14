@@ -27,6 +27,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { getFacultyPerformance } from "@/services/api";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
@@ -178,7 +179,13 @@ export default function AdminFacultyViewPage() {
                 </TableHeader>
                 <TableBody>
                     {rows.map(row => (
-                    <TableRow key={row.metric}>
+                    <TableRow
+                        key={row.metric}
+                        className={cn(
+                        row.metric === "in_1_2_sgpa_" &&
+                            "font-bold bg-yellow-200 dark:bg-yellow-800/30 hover:bg-yellow-300 dark:hover:bg-yellow-800/40"
+                        )}
+                    >
                         <TableCell className="font-medium">{row.metric}</TableCell>
                         {headers.slice(1).map(sectionName => (
                             <TableCell key={sectionName}>{row[sectionName] ?? '--'}</TableCell>
