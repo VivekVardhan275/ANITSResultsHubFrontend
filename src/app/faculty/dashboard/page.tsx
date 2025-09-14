@@ -92,7 +92,7 @@ const facultySubjectsData = [
   },
 ];
 
-const availableYears = Array.from(new Set(facultySubjectsData.map(d => d.year)));
+const availableYears = ["A21", "A22", "A23", "A24", "A25"];
 const availableSemesters = Array.from(new Set(facultySubjectsData.map(d => d.semester)));
 
 export default function FacultyDashboardPage() {
@@ -108,7 +108,7 @@ export default function FacultyDashboardPage() {
   }, []);
 
   const filteredData = facultySubjectsData.filter(
-    (data) => (selectedYear === '--' || data.year === selectedYear) && (selectedSemester === '--' || data.semester === selectedSemester)
+    (data) => (selectedYear === '--' || true) && (selectedSemester === '--' || data.semester === selectedSemester)
   );
 
   return (
@@ -122,10 +122,10 @@ export default function FacultyDashboardPage() {
         </div>
         <div className="flex items-center gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="year-select">Year</Label>
+                <Label htmlFor="year-select">Batch</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
                     <SelectTrigger id="year-select" className="w-[180px]">
-                        <SelectValue placeholder="Select Year" />
+                        <SelectValue placeholder="Select Batch" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="--">--</SelectItem>
@@ -229,7 +229,7 @@ export default function FacultyDashboardPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select a year or semester to see performance data.</p>
+                <p>Please select a batch or semester to see performance data.</p>
             </CardContent>
         </Card>
       )}
