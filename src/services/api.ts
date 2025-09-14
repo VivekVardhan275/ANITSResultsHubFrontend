@@ -72,13 +72,13 @@ export const getStudentResults = async (rollNo: string, branch: string): Promise
 
 
 export const getStudentDetails = async (rollNo: string, department: string): Promise<any> => {
-    const params = new URLSearchParams({
-        roll_no: rollNo,
-        department: department,
-    }).toString();
-
     try {
-        const response = await apiClient.get(`/api/admin/student/get-student?${params}`);
+        const response = await apiClient.get(`/api/admin/student/get-student`, {
+            params: {
+                roll_no: rollNo,
+                department: department,
+            }
+        });
         if (response.status === 200) {
             return response.data;
         } else {
