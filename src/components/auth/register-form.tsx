@@ -106,16 +106,22 @@ export function RegisterForm() {
     if (role === 'student') {
         const studentValues = values as z.infer<typeof studentRegisterSchema>;
         try {
-            await signupStudent({
+            const response = await signupStudent({
                 email: studentValues.email,
                 roll: studentValues.rollNo,
                 password: studentValues.password,
                 department: studentValues.department,
             });
+            
+            localStorage.setItem("jwtToken", response.jwtToken);
+            localStorage.setItem("userRole", response.typeOfUser);
+            localStorage.setItem("studentRollNo", studentValues.rollNo);
+            localStorage.setItem("studentEmail", studentValues.email);
+            localStorage.setItem("studentDepartment", studentValues.department);
 
             toast({
                 title: "Registration Successful",
-                description: "Your account has been created. Please log in.",
+                description: "Your account has been created. Redirecting to login...",
             });
 
             router.push("/login");
@@ -305,3 +311,5 @@ export function RegisterForm() {
     </div>
   );
 }
+
+    

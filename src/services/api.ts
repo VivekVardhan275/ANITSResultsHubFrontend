@@ -1,7 +1,24 @@
 
 import axios from 'axios';
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+const apiClient = axios.create({
+    baseURL: backendUrl,
+});
+
+apiClient.interceptors.request.use((config) => {
+    if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 
 const nonSubjectKeys = ["rollno", "sgpa", "cgpa", "section", "roll_no"];
 
@@ -33,7 +50,7 @@ export const formatSubjectName = (subjectKey: string): string => {
 
 export const getStudentResults = async (rollNo: string, branch: string): Promise<any> => {
     try {
-        const response = await axios.get(`${backendUrl}/api/student/get-results`, {
+        const response = await apiClient.get(`/api/student/get-results`, {
             params: { 
                 roll_no: rollNo,
                 branch: branch,
@@ -60,7 +77,7 @@ export const getStudentDetails = async (rollNo: string, department: string): Pro
     }).toString();
 
     try {
-        const response = await axios.get(`${backendUrl}/api/admin/student/get-student?${params}`);
+        const response = await apiClient.get(`/api/admin/student/get-student?${params}`);
         if (response.status === 200) {
             return response.data;
         } else {
@@ -82,7 +99,7 @@ export const uploadResultsFile = async (file: File, batch: string, semester: str
     formData.append('branch', branch);
 
     try {
-        const response = await axios.post(`${backendUrl}/api/admin/upload`, formData, {
+        const response = await apiClient.post(`/api/admin/upload`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -109,7 +126,7 @@ export const uploadStudentDetailsFile = async (file: File, batch: string, branch
     formData.append('branch', branch);
 
     try {
-        const response = await axios.post(`${backendUrl}/api/admin/upload-student`, formData, {
+        const response = await apiClient.post(`/api/admin/upload-student`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -130,7 +147,7 @@ export const uploadStudentDetailsFile = async (file: File, batch: string, branch
 
 export const signupStudent = async (data: { email: string; roll: string; password: string; department: string; }) => {
     try {
-        const response = await axios.post(`${backendUrl}/api/signup/student`, data);
+        const response = await apiClient.post(`/api/signup/student`, data);
         if (response.data.success) {
             return response.data;
         } else {
@@ -146,7 +163,7 @@ export const signupStudent = async (data: { email: string; roll: string; passwor
 
 export const loginStudent = async (data: { roll: string; email: string; password: string; department: string; }) => {
     try {
-        const response = await axios.post(`${backendUrl}/api/login/student`, data);
+        const response = await apiClient.post(`/api/login/student`, data);
         if (response.data.success) {
             return response.data;
         } else {
@@ -160,9 +177,25 @@ export const loginStudent = async (data: { roll: string; email: string; password
     }
 };
 
+export const loginFaculty = async (data: { username: string; email: string; password: string; department: string; }) => {
+    try {
+        const response = await apiClient.post(`/api/login/faculty`, data);
+        if (response.data.success) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || 'Faculty login failed.');
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred during login.');
+    }
+};
+
 export const loginAdmin = async (data: { username: string; email: string; password: string; }) => {
     try {
-        const response = await axios.post(`${backendUrl}/api/login/admin`, data);
+        const response = await apiClient.post(`/api/login/admin`, data);
         if (response.data.success) {
             return response.data;
         } else {
@@ -175,3 +208,5 @@ export const loginAdmin = async (data: { username: string; email: string; passwo
         throw new Error(error.message || 'An unknown error occurred during login.');
     }
 };
+
+    

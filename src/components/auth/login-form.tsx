@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
-import { loginStudent, loginAdmin } from "@/services/api";
+import { loginStudent, loginAdmin, loginFaculty } from "@/services/api";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -105,9 +105,10 @@ export function LoginForm() {
     document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
     try {
+        let response;
         switch (role) {
           case "student":
-            await loginStudent({
+            response = await loginStudent({
                 roll: values.rollNo,
                 email: values.email,
                 password: values.password,
@@ -118,6 +119,7 @@ export function LoginForm() {
             localStorage.setItem("studentDepartment", values.department);
             localStorage.setItem("studentEmail", values.email);
             localStorage.setItem("userRole", "student");
+            localStorage.setItem("jwtToken", response.jwtToken);
 
             toast({
               title: "Login Successful",
@@ -126,11 +128,18 @@ export function LoginForm() {
             router.push("/student/dashboard");
             break;
           case "faculty":
-             await new Promise((resolve) => setTimeout(resolve, 1500));
+            response = await loginFaculty({
+                username: values.username,
+                email: values.email,
+                password: values.password,
+                department: values.department,
+            });
             localStorage.setItem("facultyUsername", values.username);
             localStorage.setItem("facultyEmail", values.email);
             localStorage.setItem("facultyDepartment", values.department);
             localStorage.setItem("userRole", "faculty");
+            localStorage.setItem("jwtToken", response.jwtToken);
+
             toast({
               title: "Login Successful",
               description: `Welcome! Redirecting to your dashboard...`,
@@ -138,7 +147,7 @@ export function LoginForm() {
             router.push("/faculty/dashboard");
             break;
           case "admin":
-            await loginAdmin({
+            response = await loginAdmin({
                 username: values.username,
                 email: values.email,
                 password: values.password,
@@ -146,6 +155,7 @@ export function LoginForm() {
             localStorage.setItem("adminUsername", values.username);
             localStorage.setItem("adminEmail", values.email);
             localStorage.setItem("userRole", "admin");
+            localStorage.setItem("jwtToken", response.jwtToken);
              toast({
               title: "Login Successful",
               description: `Welcome! Redirecting to your dashboard...`,
@@ -372,3 +382,5 @@ export function LoginForm() {
     </div>
   );
 }
+
+    
