@@ -79,7 +79,7 @@ export function FacultyDetailsUploadForm() {
 
     toast({
       title: "Upload Successful!",
-      description: `Faculty details for ${values.academicYear} ${values.department} (${values.semester} - ${values.section}) have been uploaded.`,
+      description: `Faculty performance details for ${values.academicYear} ${values.department} (${values.semester} - ${values.section}) have been uploaded.`,
     });
     
     form.reset();
@@ -105,9 +105,9 @@ export function FacultyDetailsUploadForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Faculty Details Upload</CardTitle>
+        <CardTitle>Faculty Performance Details Upload</CardTitle>
         <CardDescription>
-          Select the department, year, semester, section, and the faculty details file (.xlsx).
+          Select the department, year, semester, section, and the faculty performance file (.xlsx).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -209,7 +209,7 @@ export function FacultyDetailsUploadForm() {
               name="facultyDetailsFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Faculty Details File</FormLabel>
+                  <FormLabel>Faculty Performance File</FormLabel>
                    <div 
                     className={cn(
                       "relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-secondary/50 hover:bg-secondary/80 transition-colors",
