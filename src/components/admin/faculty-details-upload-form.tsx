@@ -36,13 +36,11 @@ import { cn } from "@/lib/utils";
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
 const academicYears = ["--", "2023-24", "2022-23", "2021-22"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const sections = ["--", "A", "B", "C", "D"];
 
 const fileUploadSchema = z.object({
   department: z.string().refine(val => val !== '--', { message: "Please select a department." }),
   academicYear: z.string().refine(val => val !== '--', { message: "Please select an academic year." }),
   semester: z.string().refine(val => val !== '--', { message: "Please select a semester." }),
-  section: z.string().refine(val => val !== '--', { message: "Please select a section." }),
   facultyDetailsFile: z
     .any()
     .refine((files) => files?.[0], "File is required.")
@@ -65,7 +63,6 @@ export function FacultyDetailsUploadForm() {
       department: '--',
       academicYear: '--',
       semester: '--',
-      section: '--',
       facultyDetailsFile: undefined
     }
   });
@@ -79,7 +76,7 @@ export function FacultyDetailsUploadForm() {
 
     toast({
       title: "Upload Successful!",
-      description: `Faculty performance details for ${values.academicYear} ${values.department} (${values.semester} - ${values.section}) have been uploaded.`,
+      description: `Faculty performance details for ${values.academicYear} ${values.department} (${values.semester}) have been uploaded.`,
     });
     
     form.reset();
@@ -107,13 +104,13 @@ export function FacultyDetailsUploadForm() {
       <CardHeader>
         <CardTitle>Faculty Performance Details Upload</CardTitle>
         <CardDescription>
-          Select the department, year, semester, section, and the faculty performance file (.xlsx).
+          Select the department, year, semester, and the faculty performance file (.xlsx).
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                <FormField
                 control={form.control}
                 name="department"
@@ -173,28 +170,6 @@ export function FacultyDetailsUploadForm() {
                       <SelectContent>
                         {semesters.map(sem => (
                             <SelectItem key={sem} value={sem}>{sem}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="section"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a section" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {sections.map(sec => (
-                            <SelectItem key={sec} value={sec}>{sec}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
