@@ -126,6 +126,20 @@ export default function AdminFacultyViewPage() {
 
   }, [performanceData]);
 
+  const tableColumns = useMemo(() => {
+    if (!performanceData || performanceData.length === 0) return [];
+    const allKeys = performanceData.reduce((keys, row) => {
+      Object.keys(row).forEach(key => {
+        if (!keys.includes(key)) {
+          keys.push(key);
+        }
+      });
+      return keys;
+    }, [] as string[]);
+    // Keep 'section' as the first column
+    return ['section', ...allKeys.filter(key => key !== 'section')];
+  }, [performanceData]);
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -242,25 +256,19 @@ export default function AdminFacultyViewPage() {
                   <Table>
                       <TableHeader>
                           <TableRow>
-                              <TableHead>Section</TableHead>
-                               {Object.values(SUBJECT_MAP).map(subj => (
-                                  <TableHead key={subj}>{subj} (Pass/Fail)</TableHead>
+                              {tableColumns.map(column => (
+                                  <TableHead key={column}>{column}</TableHead>
                               ))}
-                              <TableHead>Total Students</TableHead>
-                              <TableHead>SGPA</TableHead>
-                              <TableHead>CGPA</TableHead>
                           </TableRow>
                       </TableHeader>
                       <TableBody>
-                          {performanceData.map(section => (
-                              <TableRow key={section.section}>
-                                  <TableCell className="font-medium">{section.section}</TableCell>
-                                   {Object.keys(SUBJECT_MAP).map(subjKey => (
-                                      <TableCell key={subjKey}>{section[`${subjKey}_pass`]} / {section[`${subjKey}_fail`]}</TableCell>
+                          {performanceData.map((row, rowIndex) => (
+                              <TableRow key={rowIndex}>
+                                  {tableColumns.map(column => (
+                                      <TableCell key={column} className={column === 'section' ? 'font-medium' : ''}>
+                                          {row[column]}
+                                      </TableCell>
                                   ))}
-                                  <TableCell>{section.total_students}</TableCell>
-                                  <TableCell>{section.in_1_1_sgpa}</TableCell>
-                                  <TableCell>{section.till_1_1_cgpa}</TableCell>
                               </TableRow>
                           ))}
                       </TableBody>
@@ -280,3 +288,5 @@ export default function AdminFacultyViewPage() {
     </div>
   );
 }
+
+    
