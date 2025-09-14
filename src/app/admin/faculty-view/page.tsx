@@ -118,27 +118,24 @@ const facultySubjectsData = [
 const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
-const sections = ["--", "A", "B", "C", "D"];
 
 
 export default function AdminFacultyViewPage() {
   const [selectedYear, setSelectedYear] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
   const [selectedDepartment, setSelectedDepartment] = useState("--");
-  const [selectedSection, setSelectedSection] = useState("--");
 
   const filteredData = useMemo(() => {
-    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--' || selectedSection === '--') {
+    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
       return [];
     }
     return facultySubjectsData.filter(
       (data) =>
         (selectedYear === "--" || true) && // The data uses a different year format, so we ignore this for now.
         (selectedSemester === "--" || data.semester === selectedSemester) &&
-        (selectedDepartment === "--" || data.department === selectedDepartment) &&
-        (selectedSection === "--" || data.section === selectedSection)
+        (selectedDepartment === "--" || data.department === selectedDepartment)
     );
-  }, [selectedYear, selectedSemester, selectedDepartment, selectedSection]);
+  }, [selectedYear, selectedSemester, selectedDepartment]);
 
   const performanceByFaculty = useMemo(() => {
     const facultyMap = new Map<string, { subjects: any[], totalStudents: number, totalPassed: number }>();
@@ -205,19 +202,6 @@ export default function AdminFacultyViewPage() {
                   <SelectContent>
                         {departments.map(dep => (
                           <SelectItem key={dep} value={dep}>{dep}</SelectItem>
-                      ))}
-                  </SelectContent>
-              </Select>
-          </div>
-            <div className="grid gap-2">
-              <Label htmlFor="section-select">Section</Label>
-              <Select value={selectedSection} onValueChange={setSelectedSection}>
-                  <SelectTrigger id="section-select" className="w-[180px]">
-                      <SelectValue placeholder="Select Section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                        {sections.map(sec => (
-                          <SelectItem key={sec} value={sec}>{sec}</SelectItem>
                       ))}
                   </SelectContent>
               </Select>
