@@ -29,8 +29,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
-import axios from "axios";
 import { cn } from "@/lib/utils";
+import { getStudentListForAdmin } from "@/services/api";
 
 const years = ["A21", "A22", "A23", "A24", "A25"];
 const semesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
@@ -54,20 +54,8 @@ export default function AdminDashboardPage() {
         setIsLoading(true);
         setAllResults([]);
         try {
-          const params = new URLSearchParams({
-            batch: selectedYear,
-            semester: selectedSemester,
-            branch: selectedDepartment,
-          }).toString();
-          
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
-          const response = await axios.get(`${backendUrl}/api/admin/student/get-students?${params}`);
-          
-          if (response.status === 200) {
-            setAllResults(response.data);
-          } else {
-             setAllResults([]);
-          }
+          const response = await getStudentListForAdmin(selectedYear, selectedSemester, selectedDepartment);
+          setAllResults(response || []);
         } catch (error) {
           console.error("Failed to fetch student results:", error);
           setAllResults([]);

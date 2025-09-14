@@ -1,4 +1,5 @@
 
+
 import axios from 'axios';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -82,6 +83,24 @@ export const getStudentDetails = async (rollNo: string, department: string): Pro
             return response.data;
         } else {
             throw new Error(response.data.message || `Failed to fetch student details. Status: ${response.status}`);
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.message || `An error occurred during the API request. Status: ${error.response.status}`);
+        }
+        throw new Error(error.message || 'An unknown error occurred.');
+    }
+};
+
+export const getStudentListForAdmin = async (batch: string, semester: string, branch: string): Promise<any> => {
+    try {
+        const response = await apiClient.get(`/api/admin/student/get-students`, {
+            params: { batch, semester, branch }
+        });
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            throw new Error(response.data.message || `Failed to fetch student list. Status: ${response.status}`);
         }
     } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
