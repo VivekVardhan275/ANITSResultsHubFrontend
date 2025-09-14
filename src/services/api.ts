@@ -203,11 +203,13 @@ export const uploadFacultyPerformanceFile = async (file: File, batch: string, br
 
 export const getFacultyPerformance = async (batch: string, semester: string, branch: string): Promise<any> => {
     try {
-        const response = await apiClient.post(`/api/get-faculty/performance`, {
-            batch,
-            semester,
-            branch
-        });
+        const params = new URLSearchParams();
+        params.append('batch', batch);
+        params.append('semester', semester);
+        params.append('branch', branch);
+
+        const response = await apiClient.post(`/api/get-faculty/performance`, params);
+        
         if (response.status === 200) {
             return response.data;
         } else {
@@ -291,3 +293,4 @@ export const loginAdmin = async (data: { username: string; email: string; passwo
     
 
     
+

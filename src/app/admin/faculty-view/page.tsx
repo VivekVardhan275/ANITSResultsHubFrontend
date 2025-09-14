@@ -43,6 +43,7 @@ const COLORS = ["hsl(var(--chart-1))", "hsl(var(--destructive))"];
 
 const SUBJECT_MAP: { [key: string]: string } = {
     "la_m": "Linear Algebra & Calculus",
+    "la_m_pass": "Linear Algebra & Calculus",
     "ce": "Communicative English",
 };
 
