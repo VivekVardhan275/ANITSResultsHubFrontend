@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -31,6 +31,46 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
+
+const formatSubjectName = (subjectKey: string) => {
+  return subjectKey
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const processSectionData = (sectionData: any) => {
+    const processed: { [key: string]: string | number } = {};
+    const subjects: { [key: string]: { pass?: number, fail?: number } } = {};
+
+    for (const [key, value] of Object.entries(sectionData)) {
+        if (key.endsWith('_pass') || key.endsWith('_fail')) {
+            const isPass = key.endsWith('_pass');
+            const subjectName = isPass ? key.slice(0, -5) : key.slice(0, -5);
+            
+            if (!subjects[subjectName]) {
+                subjects[subjectName] = {};
+            }
+
+            if (isPass) {
+                subjects[subjectName].pass = Number(value);
+            } else {
+                subjects[subjectName].fail = Number(value);
+            }
+        } else if (key !== 'section') {
+            processed[formatSubjectName(key)] = String(value);
+        }
+    }
+
+    for (const [subjectName, counts] of Object.entries(subjects)) {
+        const passCount = counts.pass ?? 0;
+        const failCount = counts.fail ?? 0;
+        processed[formatSubjectName(subjectName)] = `${passCount} / ${failCount}`;
+    }
+
+    return processed;
+};
+
 
 export default function AdminFacultyViewPage() {
   const [selectedBatch, setSelectedBatch] = useState("--");
@@ -125,32 +165,35 @@ export default function AdminFacultyViewPage() {
         </Card>
       ) : performanceData.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {performanceData.map((sectionData, index) => (
-                <Card key={sectionData.section || index}>
-                    <CardHeader>
-                        <CardTitle>Section: {sectionData.section}</CardTitle>
-                        <CardDescription>Detailed performance metrics for this section.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Metric</TableHead>
-                                    <TableHead>Value</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(sectionData).map(([key, value]) => (
-                                     <TableRow key={key}>
-                                        <TableCell className="font-medium">{key}</TableCell>
-                                        <TableCell>{String(value)}</TableCell>
+            {performanceData.map((sectionData, index) => {
+                const processedData = processSectionData(sectionData);
+                return (
+                    <Card key={sectionData.section || index}>
+                        <CardHeader>
+                            <CardTitle>Section: {sectionData.section}</CardTitle>
+                            <CardDescription>Detailed performance metrics for this section.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Metric</TableHead>
+                                        <TableHead>Value</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            ))}
+                                </TableHeader>
+                                <TableBody>
+                                    {Object.entries(processedData).map(([key, value]) => (
+                                         <TableRow key={key}>
+                                            <TableCell className="font-medium">{key}</TableCell>
+                                            <TableCell>{String(value)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                );
+            })}
         </div>
       ) : (
         <Card>
