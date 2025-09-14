@@ -113,7 +113,7 @@ export function RegisterForm() {
                 department: studentValues.department,
             });
             
-            localStorage.setItem("jwtToken", response.jwtToken);
+            localStorage.setItem("studentJwtToken", response.jwtToken);
             localStorage.setItem("userRole", response.typeOfUser);
             localStorage.setItem("studentRollNo", studentValues.rollNo);
             localStorage.setItem("studentEmail", studentValues.email);

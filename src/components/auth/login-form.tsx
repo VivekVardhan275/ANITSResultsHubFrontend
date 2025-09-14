@@ -119,7 +119,7 @@ export function LoginForm() {
             localStorage.setItem("studentDepartment", values.department);
             localStorage.setItem("studentEmail", values.email);
             localStorage.setItem("userRole", "student");
-            localStorage.setItem("jwtToken", response.jwtToken);
+            localStorage.setItem("studentJwtToken", response.jwtToken);
 
             toast({
               title: "Login Successful",
@@ -138,7 +138,7 @@ export function LoginForm() {
             localStorage.setItem("facultyEmail", values.email);
             localStorage.setItem("facultyDepartment", values.department);
             localStorage.setItem("userRole", "faculty");
-            localStorage.setItem("jwtToken", response.jwtToken);
+            localStorage.setItem("facultyJwtToken", response.jwtToken);
 
             toast({
               title: "Login Successful",
@@ -155,7 +155,7 @@ export function LoginForm() {
             localStorage.setItem("adminUsername", values.username);
             localStorage.setItem("adminEmail", values.email);
             localStorage.setItem("userRole", "admin");
-            localStorage.setItem("jwtToken", response.jwtToken);
+            localStorage.setItem("adminJwtToken", response.jwtToken);
              toast({
               title: "Login Successful",
               description: `Welcome! Redirecting to your dashboard...`,

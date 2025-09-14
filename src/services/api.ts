@@ -10,7 +10,17 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('jwtToken');
+        const userRole = localStorage.getItem('userRole');
+        let token = null;
+
+        if (userRole === 'admin') {
+            token = localStorage.getItem('adminJwtToken');
+        } else if (userRole === 'faculty') {
+            token = localStorage.getItem('facultyJwtToken');
+        } else if (userRole === 'student') {
+            token = localStorage.getItem('studentJwtToken');
+        }
+        
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
