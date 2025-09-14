@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -60,20 +60,6 @@ export default function AdminFacultyViewPage() {
     };
     fetchPerformanceData();
   }, [selectedBatch, selectedSemester, selectedDepartment]);
-
-  const tableColumns = useMemo(() => {
-    if (!performanceData || performanceData.length === 0) return [];
-    const allKeys = performanceData.reduce((keys, row) => {
-      Object.keys(row).forEach(key => {
-        if (!keys.includes(key)) {
-          keys.push(key);
-        }
-      });
-      return keys;
-    }, [] as string[]);
-    // Keep 'section' as the first column
-    return ['section', ...allKeys.filter(key => key !== 'section')];
-  }, [performanceData]);
 
   return (
     <div className="space-y-8">
@@ -138,38 +124,33 @@ export default function AdminFacultyViewPage() {
             </CardContent>
         </Card>
       ) : performanceData.length > 0 ? (
-        <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Section Data</CardTitle>
-                <CardDescription>A breakdown of performance metrics for each section.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                      <TableHeader>
-                          <TableRow>
-                              {tableColumns.map(column => (
-                                  <TableHead key={column}>{column}</TableHead>
-                              ))}
-                          </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                          {performanceData.map((row, rowIndex) => (
-                              <TableRow key={rowIndex}>
-                                  {tableColumns.map(column => (
-                                      <TableCell key={column} className={column === 'section' ? 'font-medium' : ''}>
-                                          {row[column]}
-                                      </TableCell>
-                                  ))}
-                              </TableRow>
-                          ))}
-                      </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {performanceData.map((sectionData, index) => (
+                <Card key={sectionData.section || index}>
+                    <CardHeader>
+                        <CardTitle>Section: {sectionData.section}</CardTitle>
+                        <CardDescription>Detailed performance metrics for this section.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Metric</TableHead>
+                                    <TableHead>Value</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(sectionData).map(([key, value]) => (
+                                     <TableRow key={key}>
+                                        <TableCell className="font-medium">{key}</TableCell>
+                                        <TableCell>{String(value)}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
       ) : (
         <Card>
