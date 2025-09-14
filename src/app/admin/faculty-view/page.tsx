@@ -45,7 +45,8 @@ const processDataForVerticalTable = (data: any[]) => {
   }
 
   const sections = data.map(d => d.section);
-  const metricsMap: { [metric: string]: { [section: string]: string | number } } = {};
+  const subjectMetricsMap: { [metric: string]: { [section: string]: string | number } } = {};
+  const otherMetricsMap: { [metric: string]: { [section: string]: string | number } } = {};
 
   data.forEach(sectionData => {
     const currentSection = sectionData.section;
@@ -73,26 +74,30 @@ const processDataForVerticalTable = (data: any[]) => {
     
     for (const [subjectName, counts] of Object.entries(subjects)) {
       const metricLabel = formatMetricName(subjectName);
-      if (!metricsMap[metricLabel]) metricsMap[metricLabel] = {};
+      if (!subjectMetricsMap[metricLabel]) subjectMetricsMap[metricLabel] = {};
       const passCount = counts.pass ?? 0;
       const failCount = counts.fail ?? 0;
-      metricsMap[metricLabel][currentSection] = `${passCount} / ${failCount}`;
+      subjectMetricsMap[metricLabel][currentSection] = `${passCount} / ${failCount}`;
     }
 
     for (const [metricName, value] of Object.entries(otherMetrics)) {
        const metricLabel = formatMetricName(metricName);
-       if (!metricsMap[metricLabel]) metricsMap[metricLabel] = {};
-       metricsMap[metricLabel][currentSection] = value;
+       if (!otherMetricsMap[metricLabel]) otherMetricsMap[metricLabel] = {};
+       otherMetricsMap[metricLabel][currentSection] = value;
     }
   });
 
-  const allMetricNames = Object.keys(metricsMap);
+  const subjectMetricNames = Object.keys(subjectMetricsMap).sort();
+  const otherMetricNames = Object.keys(otherMetricsMap).sort();
+  
+  const allMetricNames = [...subjectMetricNames, ...otherMetricNames];
+  const combinedMetricsMap = {...subjectMetricsMap, ...otherMetricsMap};
 
   return {
     headers: ["Metric", ...sections],
     rows: allMetricNames.map(metricName => ({
       metric: metricName,
-      ...metricsMap[metricName]
+      ...combinedMetricsMap[metricName]
     }))
   };
 };
