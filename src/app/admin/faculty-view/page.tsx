@@ -38,7 +38,7 @@ const processDataForVerticalTable = (data: any[]) => {
     return { headers: [], rows: [] };
   }
 
-  const sections = data.map(d => d.section);
+  const uniqueSections = [...new Set(data.map(d => d.section))];
   const metrics: { [key: string]: { [section: string]: string } } = {};
   const metricOrder: string[] = [];
 
@@ -60,7 +60,7 @@ const processDataForVerticalTable = (data: any[]) => {
   });
   
   return {
-    headers: ["Metric", ...sections],
+    headers: ["Metric", ...uniqueSections],
     rows: metricOrder.map(metric => ({
       metric,
       ...metrics[metric]
