@@ -288,6 +288,3 @@ export default function AdminFacultyViewPage() {
     </div>
   );
 }
-
-    
-    
