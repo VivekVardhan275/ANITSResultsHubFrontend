@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -26,137 +25,105 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-
-const facultySubjectsData = [
-  {
-    year: "2023-24",
-    semester: "2-1",
-    subjectName: "Data Structures",
-    subjectCode: "CS211",
-    facultyName: "Dr. Anand Kumar",
-    department: "CSE",
-    section: "A",
-    className: "CSE-A",
-    totalStudents: 60,
-    studentsPassed: 52,
-  },
-  {
-    year: "2023-24",
-    semester: "2-1",
-    subjectName: "Data Structures",
-    subjectCode: "CS211",
-    facultyName: "Dr. Anand Kumar",
-    department: "IT",
-    section: "A",
-    className: "IT-A",
-    totalStudents: 55,
-    studentsPassed: 48,
-  },
-  {
-    year: "2023-24",
-    semester: "3-2",
-    subjectName: "Compiler Design",
-    subjectCode: "CS321",
-    facultyName: "Dr. Sunita Sharma",
-    department: "CSE",
-    section: "A",
-    className: "CSE-A",
-    totalStudents: 62,
-    studentsPassed: 58,
-  },
-  {
-    year: "2023-24",
-    semester: "3-2",
-    subjectName: "Web Technologies",
-    subjectCode: "CS324",
-    facultyName: "Prof. Rajesh Singh",
-    department: "CSE",
-    section: "A",
-    className: "CSE-A",
-    totalStudents: 62,
-    studentsPassed: 60,
-  },
-  {
-    year: "2023-24",
-    semester: "3-2",
-    subjectName: "Web Technologies",
-    subjectCode: "CS324",
-    facultyName: "Prof. Rajesh Singh",
-    department: "IT",
-    section: "B",
-    className: "IT-B",
-    totalStudents: 58,
-    studentsPassed: 50,
-  },
-  {
-    year: "2022-23",
-    semester: "1-1",
-    subjectName: "Programming in C",
-    subjectCode: "CS111",
-    facultyName: "Dr. Priya Mehta",
-    department: "ECE",
-    section: "C",
-    className: "ECE-C",
-    totalStudents: 70,
-    studentsPassed: 65,
-  },
-  {
-    year: "2023-24",
-    semester: "2-1",
-    subjectName: "Operating Systems",
-    subjectCode: "CS214",
-    facultyName: "Dr. Sunita Sharma",
-    department: "IT",
-    section: "A",
-    className: "IT-A",
-    totalStudents: 58,
-    studentsPassed: 55,
-  },
-];
-
+import { getFacultyPerformance } from "@/services/api";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from "recharts"
 
 const academicYears = ["--", "A21", "A22", "A23", "A24", "A25"];
 const semesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
-const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "General", "CSM"];
+const departments = ["--", "CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "CSM"];
+const COLORS = ["hsl(var(--chart-1))", "hsl(var(--destructive))"];
 
+const SUBJECT_MAP: { [key: string]: string } = {
+    "la_m": "Linear Algebra & Calculus",
+    "ce": "Communicative English",
+};
 
 export default function AdminFacultyViewPage() {
-  const [selectedYear, setSelectedYear] = useState("--");
+  const [selectedBatch, setSelectedBatch] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
   const [selectedDepartment, setSelectedDepartment] = useState("--");
+  const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredData = useMemo(() => {
-    if (selectedYear === '--' || selectedSemester === '--' || selectedDepartment === '--') {
-      return [];
-    }
-    return facultySubjectsData.filter(
-      (data) =>
-        (selectedYear === "--" || true) && // The data uses a different year format, so we ignore this for now.
-        (selectedSemester === "--" || data.semester === selectedSemester) &&
-        (selectedDepartment === "--" || data.department === selectedDepartment)
-    );
-  }, [selectedYear, selectedSemester, selectedDepartment]);
-
-  const performanceByFaculty = useMemo(() => {
-    const facultyMap = new Map<string, { subjects: any[], totalStudents: number, totalPassed: number }>();
-    
-    filteredData.forEach(item => {
-        if (!facultyMap.has(item.facultyName)) {
-            facultyMap.set(item.facultyName, { subjects: [], totalStudents: 0, totalPassed: 0 });
+  useEffect(() => {
+    const fetchPerformanceData = async () => {
+      if (selectedBatch !== '--' && selectedSemester !== '--' && selectedDepartment !== '--') {
+        setIsLoading(true);
+        setError(null);
+        setPerformanceData([]);
+        try {
+          const data = await getFacultyPerformance(selectedBatch, selectedSemester, selectedDepartment);
+          setPerformanceData(data || []);
+        } catch (err: any) {
+          setError(err.message || "Failed to fetch performance data.");
+        } finally {
+          setIsLoading(false);
         }
-        const facultyData = facultyMap.get(item.facultyName)!;
-        facultyData.subjects.push(item);
-        facultyData.totalStudents += item.totalStudents;
-        facultyData.totalPassed += item.studentsPassed;
+      } else {
+        setPerformanceData([]);
+      }
+    };
+    fetchPerformanceData();
+  }, [selectedBatch, selectedSemester, selectedDepartment]);
+
+  const chartData = useMemo(() => {
+    if (!performanceData || performanceData.length === 0) return [];
+    
+    const subjectStats: { [key: string]: { name: string, passed: number, failed: number } } = {};
+
+    performanceData.forEach(section => {
+        Object.keys(SUBJECT_MAP).forEach(subjectKey => {
+            const passKey = `${subjectKey}_pass`;
+            const failKey = `${subjectKey}_fail`;
+
+            if (section[passKey] && section[failKey]) {
+                if (!subjectStats[subjectKey]) {
+                    subjectStats[subjectKey] = { name: SUBJECT_MAP[subjectKey], passed: 0, failed: 0 };
+                }
+                subjectStats[subjectKey].passed += parseInt(section[passKey]);
+                subjectStats[subjectKey].failed += parseInt(section[failKey]);
+            }
+        });
     });
 
-    return Array.from(facultyMap.entries()).map(([name, data]) => ({
-        facultyName: name,
-        ...data
+    return Object.values(subjectStats).map(stat => ({
+        name: stat.name,
+        passPercentage: stat.passed + stat.failed > 0 ? (stat.passed / (stat.passed + stat.failed)) * 100 : 0
     }));
 
-  }, [filteredData]);
+  }, [performanceData]);
 
+  const pieChartDataBySection = useMemo(() => {
+    if (!performanceData || performanceData.length === 0) return {};
+    
+    const sectionPies: { [key: string]: any[] } = {};
+
+    performanceData.forEach(section => {
+        let totalPassed = 0;
+        let totalFailed = 0;
+        Object.keys(SUBJECT_MAP).forEach(subjectKey => {
+            totalPassed += parseInt(section[`${subjectKey}_pass`] || '0');
+            totalFailed += parseInt(section[`${subjectKey}_fail`] || '0');
+        });
+        
+        sectionPies[section.section] = [
+            { name: "Passed", value: totalPassed, color: "hsl(var(--chart-1))" },
+            { name: "Failed", value: totalFailed, color: "hsl(var(--destructive))" },
+        ];
+    });
+
+    return sectionPies;
+
+  }, [performanceData]);
 
   return (
     <div className="space-y-8">
@@ -169,7 +136,7 @@ export default function AdminFacultyViewPage() {
       <div className="flex justify-center items-center gap-6 flex-wrap">
           <div className="grid gap-2">
               <Label htmlFor="year-select">Academic Year</Label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <Select value={selectedBatch} onValueChange={setSelectedBatch}>
                   <SelectTrigger id="year-select" className="w-[180px]">
                       <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
@@ -208,77 +175,97 @@ export default function AdminFacultyViewPage() {
           </div>
       </div>
 
-      {performanceByFaculty.length > 0 ? (
+       {isLoading ? (
+        <div className="flex justify-center items-center h-40">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      ) : error ? (
+        <Card>
+            <CardContent className="p-10 text-center text-destructive flex flex-col items-center gap-4">
+                <AlertTriangle className="h-8 w-8" />
+                <p className="font-semibold">Error loading data</p>
+                <p className="text-sm text-muted-foreground">{error}</p>
+            </CardContent>
+        </Card>
+      ) : performanceData.length > 0 ? (
         <div className="space-y-8">
-          {performanceByFaculty.map((faculty) => {
-            const overallPassPercentage =
-              faculty.totalStudents > 0
-                ? (faculty.totalPassed / faculty.totalStudents) * 100
-                : 0;
-
-            return (
-              <Card key={faculty.facultyName}>
+            <Card>
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>{faculty.facultyName}</CardTitle>
-                      <CardDescription>Performance Summary</CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Overall Pass Rate
-                      </p>
-                      <p className="text-2xl font-bold text-primary">
-                        {overallPassPercentage.toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
+                    <CardTitle>Performance Summary</CardTitle>
+                    <CardDescription>Overall pass percentage by subject for the selected criteria.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                    <ChartContainer config={{}} className="min-h-[200px] w-full">
+                        <BarChart data={chartData} accessibilityLayer>
+                            <CartesianGrid vertical={false} />
+                            <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
+                            <YAxis unit="%" />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Bar dataKey="passPercentage" fill="hsl(var(--chart-1))" radius={4} />
+                        </BarChart>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {Object.entries(pieChartDataBySection).map(([section, data]) => (
+                   <Card key={section}>
+                       <CardHeader>
+                           <CardTitle>Section {section}: Pass/Fail Ratio</CardTitle>
+                           <CardDescription>Overall student pass vs. fail distribution.</CardDescription>
+                       </CardHeader>
+                       <CardContent>
+                           <ChartContainer config={{}} className="h-[250px]">
+                               <PieChart>
+                                   <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                   <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                                     {data.map((entry: any, index: number) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                     ))}
+                                   </Pie>
+                                   <ChartLegend content={<ChartLegendContent />} />
+                               </PieChart>
+                           </ChartContainer>
+                       </CardContent>
+                   </Card>
+                ))}
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Detailed Section Data</CardTitle>
+                <CardDescription>A breakdown of performance metrics for each section.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Subject</TableHead>
-                        <TableHead>Semester</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Passed / Total</TableHead>
-                        <TableHead className="w-[120px]">Pass %</TableHead>
-                      </TableRow>
+                        <TableRow>
+                            <TableHead>Section</TableHead>
+                             {Object.values(SUBJECT_MAP).map(subj => (
+                                <TableHead key={subj}>{subj} (Pass/Fail)</TableHead>
+                            ))}
+                            <TableHead>Total Students</TableHead>
+                            <TableHead>SGPA</TableHead>
+                            <TableHead>CGPA</TableHead>
+                        </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {faculty.subjects.map((subject: any) => {
-                        const passPercentage =
-                          (subject.studentsPassed / subject.totalStudents) * 100;
-                        return (
-                          <TableRow key={`${subject.subjectCode}-${subject.className}`}>
-                            <TableCell className="font-medium">
-                              {subject.subjectName} ({subject.subjectCode})
-                            </TableCell>
-                            <TableCell>{subject.semester}</TableCell>
-                            <TableCell>{subject.className}</TableCell>
-                            <TableCell>
-                              {subject.studentsPassed} / {subject.totalStudents}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Progress
-                                  value={passPercentage}
-                                  className="h-2 flex-1"
-                                />
-                                <span className="text-xs text-muted-foreground w-10 text-right">
-                                  {passPercentage.toFixed(0)}%
-                                </span>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                        {performanceData.map(section => (
+                            <TableRow key={section.section}>
+                                <TableCell className="font-medium">{section.section}</TableCell>
+                                 {Object.keys(SUBJECT_MAP).map(subjKey => (
+                                    <TableCell key={subjKey}>{section[`${subjKey}_pass`]} / {section[`${subjKey}_fail`]}</TableCell>
+                                ))}
+                                <TableCell>{section.total_students}</TableCell>
+                                <TableCell>{section.in_1_1_sgpa}</TableCell>
+                                <TableCell>{section.till_1_1_cgpa}</TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </Table>
+              </CardContent>
+            </Card>
+
         </div>
       ) : (
         <Card>
@@ -290,3 +277,5 @@ export default function AdminFacultyViewPage() {
     </div>
   );
 }
+
+    
