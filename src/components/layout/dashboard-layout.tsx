@@ -49,7 +49,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [userName, setUserName] = useState("ANITS User");
+  const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("user@anits.edu.in");
   const [userRole, setUserRole] = useState<string | null>(null);
   const [homeHref, setHomeHref] = useState("/");
@@ -57,7 +57,7 @@ export function DashboardLayout({
   useEffect(() => {
     const role = localStorage.getItem("userRole");
     setUserRole(role);
-    let name = "ANITS User";
+    let name = "User";
     let email = "user@anits.edu.in";
     let newHomeHref = "/login";
 
@@ -128,7 +128,7 @@ export function DashboardLayout({
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link href={homeHref} className="text-2xl font-bold text-sidebar-foreground group-data-[collapsible=icon]:hidden">ANITS Results Hub</Link>
+          <Link href={homeHref} className="text-2xl font-bold text-sidebar-foreground group-data-[collapsible=icon]:hidden">Results Hub</Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>

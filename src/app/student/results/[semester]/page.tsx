@@ -176,7 +176,7 @@ export default function SemesterResultPage() {
       
       <div ref={printRef} className="bg-card p-6 rounded-lg border">
           <div className="printable-header hidden mb-6 border-b pb-4">
-              <h2 className="text-xl font-bold text-center">ANITS Results Summary</h2>
+              <h2 className="text-xl font-bold text-center">Results Summary</h2>
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 text-sm">
                   <div><strong>Name:</strong> {studentInfo.name}</div>
                   <div><strong>Roll No:</strong> {studentInfo.rollNo}</div>

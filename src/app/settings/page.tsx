@@ -10,7 +10,7 @@ import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Settings | ANITS Results Hub",
+  title: "Settings | Results Hub",
   description: "Manage your application settings.",
 };
 

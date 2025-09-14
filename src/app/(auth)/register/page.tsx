@@ -1,3 +1,4 @@
+
 import { RegisterForm } from "@/components/auth/register-form";
 import {
   Card,
@@ -9,15 +10,15 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Register | ANITS Results Hub",
-  description: "Create an account for the ANITS Results Hub",
+  title: "Register | Results Hub",
+  description: "Create an account for the Results Hub",
 };
 
 export default function RegisterPage() {
   return (
     <>
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-primary">ANITS Results Hub</h1>
+        <h1 className="text-3xl font-bold text-primary">Results Hub</h1>
         <p className="text-muted-foreground">Join the portal by creating an account.</p>
       </div>
       <Card className="shadow-2xl">
