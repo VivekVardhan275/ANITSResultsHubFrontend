@@ -33,6 +33,7 @@ const facultySubjectsData = [
     semester: "2-1",
     subjectName: "Data Structures",
     subjectCode: "CS211",
+    department: "CSE",
     classes: [
       {
         className: "2-1 CSE",
@@ -51,6 +52,7 @@ const facultySubjectsData = [
     semester: "3-2",
     subjectName: "Compiler Design",
     subjectCode: "CS321",
+    department: "CSE",
     classes: [
       {
         className: "3-2 CSE",
@@ -64,6 +66,7 @@ const facultySubjectsData = [
     semester: "3-2",
     subjectName: "Web Technologies",
     subjectCode: "CS324",
+    department: "CSE",
     classes: [
       {
         className: "3-2 CSE",
@@ -82,6 +85,7 @@ const facultySubjectsData = [
     semester: "1-1",
     subjectName: "Programming in C",
     subjectCode: "CS111",
+    department: "ECE",
     classes: [
       {
         className: "1-1 ECE",
@@ -92,12 +96,14 @@ const facultySubjectsData = [
   },
 ];
 
-const availableYears = ["A21", "A22", "A23", "A24", "A25"];
-const availableSemesters = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const availableYears = ["--", "A21", "A22", "A23", "A24", "A25"];
+const availableSemesters = ["--", "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
+const availableDepartments = ["--", "CSE", "CSM", "EEE", "IT"];
 
 export default function FacultyDashboardPage() {
   const [selectedYear, setSelectedYear] = useState("--");
   const [selectedSemester, setSelectedSemester] = useState("--");
+  const [selectedDepartment, setSelectedDepartment] = useState("--");
   const [facultyName, setFacultyName] = useState("Faculty");
 
   useEffect(() => {
@@ -108,7 +114,10 @@ export default function FacultyDashboardPage() {
   }, []);
 
   const filteredData = facultySubjectsData.filter(
-    (data) => (selectedYear === '--' || true) && (selectedSemester === '--' || data.semester === selectedSemester)
+    (data) => 
+      (selectedYear === '--' || true) && 
+      (selectedSemester === '--' || data.semester === selectedSemester) &&
+      (selectedDepartment === '--' || data.department === selectedDepartment)
   );
 
   return (
@@ -120,7 +129,7 @@ export default function FacultyDashboardPage() {
             Here's an overview of your subject performance.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
             <div className="grid gap-2">
                 <Label htmlFor="year-select">Batch</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -149,10 +158,24 @@ export default function FacultyDashboardPage() {
                     </SelectContent>
                 </Select>
             </div>
+             <div className="grid gap-2">
+                <Label htmlFor="department-select">Department</Label>
+                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                    <SelectTrigger id="department-select" className="w-[180px]">
+                        <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="--">--</SelectItem>
+                        {availableDepartments.map(dep => (
+                            <SelectItem key={dep} value={dep}>{dep}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
       </div>
 
-      {(selectedYear !== '--' || selectedSemester !== '--') && filteredData.length > 0 ? (
+      {(selectedYear !== '--' || selectedSemester !== '--' || selectedDepartment !== '--') && filteredData.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredData.map((subject) => {
             const totalStudents = subject.classes.reduce(
@@ -229,7 +252,7 @@ export default function FacultyDashboardPage() {
       ) : (
         <Card>
             <CardContent className="p-10 text-center text-muted-foreground">
-                <p>Please select a batch or semester to see performance data.</p>
+                <p>Please select a batch, semester, or department to see performance data.</p>
             </CardContent>
         </Card>
       )}
